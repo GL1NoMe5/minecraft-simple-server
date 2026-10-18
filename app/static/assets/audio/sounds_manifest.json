@@ -1,0 +1,200 @@
+{
+  "click.ogg": {
+    "key": "minecraft/sounds/random/click.ogg",
+    "hash": "ec4f4d122ab7c5d44e48419de0e3de1b0922514d",
+    "size": 9138,
+    "file": "/static/assets/audio/click.ogg"
+  },
+  "wood_click.ogg": {
+    "key": "minecraft/sounds/random/wood_click.ogg",
+    "hash": "b210a3c371441b77fe873133b2cb7b63e367b2f3",
+    "size": 4385,
+    "file": "/static/assets/audio/wood_click.ogg"
+  },
+  "cherrywood_click.ogg": {
+    "key": "minecraft/sounds/block/cherrywood_button/cherrywood_click.ogg",
+    "hash": "4dde7bcaca14f997cd72c638c651ca293bf4411a",
+    "size": 8912,
+    "file": "/static/assets/audio/cherrywood_click.ogg"
+  },
+  "bamboo_click.ogg": {
+    "key": "minecraft/sounds/block/bamboo_wood_button/bamboo_wood_button.ogg",
+    "hash": "a0d8a6bb5ee5b1ed724c930ba0fcf4b33633a5f5",
+    "size": 11049,
+    "file": "/static/assets/audio/bamboo_click.ogg"
+  },
+  "page_flip.ogg": {
+    "key": "minecraft/sounds/item/book/open_flip1.ogg",
+    "hash": "234d6a686516c264a370ea834b87d47ae7334ef7",
+    "size": 6615,
+    "file": "/static/assets/audio/page_flip.ogg"
+  },
+  "pop.ogg": {
+    "key": "minecraft/sounds/random/pop.ogg",
+    "hash": "8f45b5faf6dfae2065846d26612f7552b73640dd",
+    "size": 4193,
+    "file": "/static/assets/audio/pop.ogg"
+  },
+  "bundle_insert.ogg": {
+    "key": "minecraft/sounds/item/bundle/insert1.ogg",
+    "hash": "13067cc3d724d3e2d454de39d2b9a038ca87f985",
+    "size": 17240,
+    "file": "/static/assets/audio/bundle_insert.ogg"
+  },
+  "bundle_drop.ogg": {
+    "key": "minecraft/sounds/item/bundle/drop_contents1.ogg",
+    "hash": "babd09368ea2958cab6847e38cda13c115b3d014",
+    "size": 22779,
+    "file": "/static/assets/audio/bundle_drop.ogg"
+  },
+  "chest_open.ogg": {
+    "key": "minecraft/sounds/random/chestopen.ogg",
+    "hash": "186d5d9481d59cc99bc4be1b5fbb98d0ef877b8e",
+    "size": 8703,
+    "file": "/static/assets/audio/chest_open.ogg"
+  },
+  "chest_close.ogg": {
+    "key": "minecraft/sounds/block/chest/close1.ogg",
+    "hash": "eddb25d126a93fd0dd26e0dd9ac1c0ef094b79f6",
+    "size": 17135,
+    "file": "/static/assets/audio/chest_close.ogg"
+  },
+  "door_close.ogg": {
+    "key": "minecraft/sounds/block/wooden_door/close1.ogg",
+    "hash": "6e0d43b064fb69f7b63e0704d99a38bb2ebc19e0",
+    "size": 6504,
+    "file": "/static/assets/audio/door_close.ogg"
+  },
+  "barrel_close.ogg": {
+    "key": "minecraft/sounds/block/barrel/close.ogg",
+    "hash": "fb9da3e4f5ef68c7f2f51152bbf3770d052bef8a",
+    "size": 16195,
+    "file": "/static/assets/audio/barrel_close.ogg"
+  },
+  "amethyst_chime.ogg": {
+    "key": "minecraft/sounds/block/amethyst_cluster/place1.ogg",
+    "hash": "f57c74bb3b583bbbbb78529203ff8dee72f1052f",
+    "size": 33665,
+    "file": "/static/assets/audio/amethyst_chime.ogg"
+  },
+  "amethyst_resonate.ogg": {
+    "key": "minecraft/sounds/block/amethyst/resonate1.ogg",
+    "hash": "d6e0763301604f7d590138a22c74fb27887ecc3c",
+    "size": 28783,
+    "file": "/static/assets/audio/amethyst_resonate.ogg"
+  },
+  "amethyst_shimmer.ogg": {
+    "key": "minecraft/sounds/block/amethyst/shimmer.ogg",
+    "hash": "da0969aedca90796e6828293b6d8f85f4c1a35f8",
+    "size": 77363,
+    "file": "/static/assets/audio/amethyst_shimmer.ogg"
+  },
+  "amethyst_step.ogg": {
+    "key": "minecraft/sounds/block/amethyst/step1.ogg",
+    "hash": "ae1fff00d840263fdd265f4132bce0a36060e710",
+    "size": 41955,
+    "file": "/static/assets/audio/amethyst_step.ogg"
+  },
+  "levelup.ogg": {
+    "key": "minecraft/sounds/random/levelup.ogg",
+    "hash": "b9c60e807ba770e8c4a2b1bae81d51813dc64b6c",
+    "size": 15799,
+    "file": "/static/assets/audio/levelup.ogg"
+  },
+  "note_bass.ogg": {
+    "key": "minecraft/sounds/note/bass.ogg",
+    "hash": "e28d844995368de1d45c724a5d371c9952ae5ed4",
+    "size": 5479,
+    "file": "/static/assets/audio/note_bass.ogg"
+  },
+  "note_pling.ogg": {
+    "key": "minecraft/sounds/note/pling.ogg",
+    "hash": "20d06589bd5ab81a73989bdac8ca59ecd4d66932",
+    "size": 6274,
+    "file": "/static/assets/audio/note_pling.ogg"
+  },
+  "note_bell.ogg": {
+    "key": "minecraft/sounds/note/bell.ogg",
+    "hash": "dffb5d6066ba89a4d3a609eb0c607606d4a524e2",
+    "size": 5907,
+    "file": "/static/assets/audio/note_bell.ogg"
+  },
+  "note_harp.ogg": {
+    "key": "minecraft/sounds/note/harp.ogg",
+    "hash": "46244605b8663a29cdce7bccc5b2d038241e32ee",
+    "size": 6137,
+    "file": "/static/assets/audio/note_harp.ogg"
+  },
+  "note_flute.ogg": {
+    "key": "minecraft/sounds/note/flute.ogg",
+    "hash": "a7f05f19c3e553c61deb61e5e8123a82cdbec758",
+    "size": 8137,
+    "file": "/static/assets/audio/note_flute.ogg"
+  },
+  "orb.ogg": {
+    "key": "minecraft/sounds/random/orb.ogg",
+    "hash": "e9833a1512b57bcf88ac4fdcc8df4e5a7e9d701d",
+    "size": 7139,
+    "file": "/static/assets/audio/orb.ogg"
+  },
+  "enchant.ogg": {
+    "key": "minecraft/sounds/block/enchantment_table/enchant1.ogg",
+    "hash": "f05f55328f2b98b3c7d881fcdef7e7964d8082fa",
+    "size": 14984,
+    "file": "/static/assets/audio/enchant.ogg"
+  },
+  "beacon_activate.ogg": {
+    "key": "minecraft/sounds/block/beacon/activate.ogg",
+    "hash": "191510085f615e2d44136f45c41dd19aecf601e5",
+    "size": 39927,
+    "file": "/static/assets/audio/beacon_activate.ogg"
+  },
+  "conduit_activate.ogg": {
+    "key": "minecraft/sounds/block/conduit/activate.ogg",
+    "hash": "c126f80ecb54d09630455873cde3143590fa70f9",
+    "size": 46044,
+    "file": "/static/assets/audio/conduit_activate.ogg"
+  },
+  "liquid_splash.ogg": {
+    "key": "minecraft/sounds/liquid/splash.ogg",
+    "hash": "4c14c40542e249c902d0cac710ab4c6d6debba28",
+    "size": 16702,
+    "file": "/static/assets/audio/liquid_splash.ogg"
+  },
+  "bottle_fill.ogg": {
+    "key": "minecraft/sounds/item/bottle/fill1.ogg",
+    "hash": "4dbe4df94e8c2433b4e046b0493b47db1272b995",
+    "size": 9133,
+    "file": "/static/assets/audio/bottle_fill.ogg"
+  },
+  "honey_wax.ogg": {
+    "key": "minecraft/sounds/item/honeycomb/wax_on1.ogg",
+    "hash": "4a73e322395e001dd4e47da97ebd47600240e00b",
+    "size": 31516,
+    "file": "/static/assets/audio/honey_wax.ogg"
+  },
+  "villager_no.ogg": {
+    "key": "minecraft/sounds/mob/villager/no1.ogg",
+    "hash": "255f7e21123c3647bd80c973e6a73d7854b2a1be",
+    "size": 7715,
+    "file": "/static/assets/audio/villager_no.ogg"
+  },
+  "villager_yes.ogg": {
+    "key": "minecraft/sounds/mob/villager/yes1.ogg",
+    "hash": "be73a79fb1ab966887a8b88bed9aa6b3d9173d71",
+    "size": 9191,
+    "file": "/static/assets/audio/villager_yes.ogg"
+  },
+  "toast_challenge.ogg": {
+    "key": "minecraft/sounds/ui/toast/challenge_complete.ogg",
+    "hash": "210c839d6fab655373b3a5e4c278f59dff4936d8",
+    "size": 91536,
+    "file": "/static/assets/audio/toast_challenge.ogg"
+  },
+  "toast_in.ogg": {
+    "key": "minecraft/sounds/ui/toast/in.ogg",
+    "hash": "1bdb9e214a7833b794b1b4b97796d9f9af12bca5",
+    "size": 20040,
+    "file": "/static/assets/audio/toast_in.ogg"
+  }
+}
