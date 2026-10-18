@@ -26,6 +26,11 @@ ENV/
 Thumbs.db
 desktop.ini
 
+# PyInstaller / Build artifacts
+build/
+dist/
+*.spec
+
 # Project backups (local safety archives)
 backups/
 
