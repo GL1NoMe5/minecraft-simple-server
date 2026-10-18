@@ -39,7 +39,7 @@
 <img src="app/static/icons/diamond_pickaxe.png" width="20" /> **Any core, any version**<br/>
 <sub>Vanilla, Paper, Purpur, Fabric, Forge & NeoForge — downloaded automatically.</sub>
 
-<img src="app/static/icons/command_block_front.png" width="20" /> **Live console**<br/>
+<img src="app/static/icons/book.png" width="20" /> **Live console**<br/>
 <sub>Real-time server logs and commands right in your browser.</sub>
 
 <img src="app/static/icons/name_tag.png" width="20" /> **Player inspector**<br/>
