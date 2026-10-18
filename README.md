@@ -88,5 +88,5 @@ python run.py
 
 Проект покрыт автоматическими тестами (эндпоинты FastAPI, WebSocket, NBT-парсер инвентаря, звуковой движок, темы):
 ```powershell
-python -m unittest discover -p "test*.py"
+python -m unittest discover -s tests
 ```

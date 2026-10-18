@@ -4,7 +4,7 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 import subprocess
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
 from fastapi.testclient import TestClient

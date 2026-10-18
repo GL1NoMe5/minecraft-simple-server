@@ -3,7 +3,7 @@ import json
 import os
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 AUDIO_DIR = BASE_DIR / "app" / "static" / "assets" / "audio"
 AUDIO_DIR.mkdir(parents=True, exist_ok=True)
 

@@ -2,7 +2,7 @@ import unittest
 import sys
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parent
+BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR))
 
 from app.player_service import parse_nbt_to_player_data, default_player_data, _extract_item_dict
