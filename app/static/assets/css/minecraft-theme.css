@@ -1,0 +1,937 @@
+/* =====================================================================
+   MSS (Minecraft Simple Server) — Authentic Minecraft Theme Layer
+   ---------------------------------------------------------------------
+   Light mode  -> Classic Java Edition GUI (stone-gray panels on dirt)
+   Dark mode   -> Deepslate & Lush Cavern GUI (deepslate panels on cave)
+   ===================================================================== */
+
+/* ---------- Pixel font (local, works offline, has Cyrillic & Latin) ---------- */
+@font-face {
+  font-family: 'Pixelify Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/static/assets/vendor/fonts/pixelify/pixelify-cyrillic.woff2') format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+@font-face {
+  font-family: 'Pixelify Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/static/assets/vendor/fonts/pixelify/pixelify-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C4, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+  font-family: 'Pixelify Sans';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/static/assets/vendor/fonts/pixelify/pixelify-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* ---------- Design tokens ---------- */
+html,
+.mc-theme {
+  color-scheme: light;
+  --mc-font: 'Pixelify Sans', system-ui, -apple-system, sans-serif;
+  --mc-mono: 'JetBrains Mono', Consolas, 'Courier New', monospace;
+
+  /* Light mode = Classic Java Edition GUI (High Readability) */
+  --mc-panel: #c6c6c6;
+  --mc-panel-hi: #ffffff;
+  --mc-panel-lo: #555555;
+  --mc-outline: #000000;
+  --mc-text: #1a1a1a;
+  --mc-text-muted: #3e3e3e;
+  --mc-heading: #0f0f0f;
+  --mc-heading-shadow: 1px 1px 0 rgba(255, 255, 255, 0.55);
+  --mc-recess-bg: rgba(0, 0, 0, 0.08);
+  --mc-recess-hi: #7a7a7a;
+  --mc-recess-lo: #ffffff;
+  --mc-page-tex: url('/static/icons/dirt.png');
+  --mc-page-shade: rgba(12, 9, 6, 0.56);
+  --mc-menu-tex: url('/static/icons/oak_planks.png');
+  --mc-menu-shade: rgba(0, 0, 0, 0.32);
+  --mc-nav-tex: url('/static/icons/stone_bricks.png');
+  --mc-nav-shade: rgba(0, 0, 0, 0.46);
+
+  /* Ambient background glow tokens (Light = warm torchlight & overworld sun) */
+  --mc-aura-1: rgba(255, 190, 80, 0.16);
+  --mc-aura-2: rgba(110, 225, 85, 0.11);
+  --mc-aura-3: rgba(90, 200, 255, 0.10);
+
+  /* High-contrast Minecraft palette for light panel surfaces */
+  --mc-green: #1e6b12;
+  --mc-aqua: #0d5f6e;
+  --mc-gold: #784900;
+  --mc-red: #961515;
+  --mc-purple: #5e2794;
+  --mc-yellow: #6e5e00;
+}
+
+html.dark-style,
+.mc-theme.dark-style {
+  color-scheme: dark;
+  --mc-panel: #2b2b32;
+  --mc-panel-hi: #4c4c57;
+  --mc-panel-lo: #151519;
+  --mc-text: #f0f0f5;
+  --mc-text-muted: #b8b8c6;
+  --mc-heading: #ffffff;
+  --mc-heading-shadow: 2px 2px 0 rgba(0, 0, 0, 0.7);
+  --mc-recess-bg: rgba(0, 0, 0, 0.32);
+  --mc-recess-hi: #141418;
+  --mc-recess-lo: #484852;
+  --mc-page-tex: url('/static/icons/deepslate.png');
+  --mc-page-shade: rgba(5, 5, 12, 0.68);
+  --mc-menu-tex: url('/static/icons/spruce_planks.png');
+  --mc-menu-shade: rgba(0, 0, 0, 0.50);
+  --mc-nav-tex: url('/static/icons/stone_bricks.png');
+  --mc-nav-shade: rgba(0, 0, 0, 0.60);
+
+  /* Ambient background glow tokens (Dark = amethyst geode & lush sculk cavern) */
+  --mc-aura-1: rgba(175, 105, 255, 0.16);
+  --mc-aura-2: rgba(65, 220, 190, 0.12);
+  --mc-aura-3: rgba(255, 170, 55, 0.10);
+
+  --mc-green: #6fdc4b;
+  --mc-aqua: #55e3f0;
+  --mc-gold: #ffc247;
+  --mc-red: #ff6e6e;
+  --mc-purple: #c896ff;
+  --mc-yellow: #ffff55;
+}
+
+/* ---------- Global & Background Atmosphere ---------- */
+.mc-theme body {
+  position: relative;
+  min-height: 100vh;
+  background-color: #16110d !important;
+  background-image:
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.68) 100%),
+    linear-gradient(var(--mc-page-shade), var(--mc-page-shade)),
+    var(--mc-page-tex) !important;
+  background-size: cover, cover, 64px 64px !important;
+  background-repeat: no-repeat, no-repeat, repeat !important;
+  background-attachment: fixed !important;
+  image-rendering: pixelated;
+  color: var(--mc-text) !important;
+  font-family: var(--mc-font) !important;
+  font-size: 0.96rem;
+  line-height: 1.45;
+  overflow-x: hidden;
+}
+
+/* Subtle Ambient Biome Light Pools on the background */
+.mc-theme body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(circle 520px at 18% 16%, var(--mc-aura-1), transparent 70%),
+    radial-gradient(circle 480px at 85% 28%, var(--mc-aura-2), transparent 72%),
+    radial-gradient(circle 560px at 62% 84%, var(--mc-aura-3), transparent 75%);
+  opacity: 0.9;
+}
+
+@keyframes mc-aura-breathe {
+  0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.82; }
+  50%      { transform: scale(1.06) translate(-10px, 8px); opacity: 1; }
+}
+.mc-theme.mc-fx body::before {
+  animation: mc-aura-breathe 12s ease-in-out infinite;
+}
+
+/* Particle canvas sits above body background (z-index: 0) and below UI (z-index: 1) */
+#mcParticles {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.mc-theme .layout-wrapper {
+  position: relative;
+  z-index: 1;
+  background: transparent !important;
+}
+.mc-theme .layout-container,
+.mc-theme .layout-page,
+.mc-theme .content-wrapper {
+  background: transparent !important;
+}
+
+.mc-theme ::selection {
+  background: #55ff55;
+  color: #000000;
+}
+
+.mc-theme h1, .mc-theme h2, .mc-theme h3, .mc-theme h4, .mc-theme h5, .mc-theme h6,
+.mc-theme .card-title, .mc-theme .modal-title,
+.mc-theme .btn, .mc-theme .badge, .mc-theme .form-label,
+.mc-theme .menu-link, .mc-theme .menu-header-text,
+.mc-theme .navbar, .mc-theme .toast-body strong {
+  font-family: var(--mc-font) !important;
+  letter-spacing: 0.02em;
+}
+
+.mc-theme small,
+.mc-theme .small {
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+/* Square everything: Minecraft has crisp 90-degree block corners */
+.mc-theme .card, .mc-theme .btn, .mc-theme .badge, .mc-theme .form-control,
+.mc-theme .form-select, .mc-theme .input-group-text, .mc-theme .modal-content,
+.mc-theme .progress, .mc-theme .progress-bar, .mc-theme .toast, .mc-theme .alert,
+.mc-theme .rounded, .mc-theme .rounded-pill, .mc-theme .avatar-initial,
+.mc-theme .list-group-item, .mc-theme .layout-navbar, .mc-theme .dropzone,
+.mc-theme .mc-avatar, .mc-theme .jvm-terminal-box, .mc-theme .mc-slot-detail-card {
+  border-radius: 0 !important;
+}
+
+/* ---------- Pixel scrollbars ---------- */
+.mc-theme ::-webkit-scrollbar { width: 12px; height: 12px; }
+.mc-theme ::-webkit-scrollbar-track { background: #1b1b1b; }
+.mc-theme ::-webkit-scrollbar-thumb {
+  background: #8b8b8b;
+  border: 2px solid #1b1b1b;
+  box-shadow: inset 2px 2px 0 #c6c6c6, inset -2px -2px 0 #555;
+}
+.mc-theme ::-webkit-scrollbar-thumb:hover { background: #a4a4a4; }
+
+/* ---------- Text colour remap (High Contrast) ---------- */
+.mc-theme .text-muted,
+.mc-theme .text-secondary {
+  color: var(--mc-text-muted) !important;
+}
+.mc-theme .text-body {
+  color: var(--mc-text) !important;
+}
+.mc-theme .text-primary,
+.mc-theme .text-success {
+  color: var(--mc-green) !important;
+}
+.mc-theme .text-info {
+  color: var(--mc-aqua) !important;
+}
+.mc-theme .text-warning {
+  color: var(--mc-gold) !important;
+}
+.mc-theme .text-danger {
+  color: var(--mc-red) !important;
+}
+.mc-theme code {
+  color: var(--mc-purple) !important;
+  background: rgba(0, 0, 0, 0.12);
+  padding: 0.1rem 0.35rem;
+  font-family: var(--mc-mono) !important;
+  font-size: 0.84em;
+}
+.mc-theme.dark-style code {
+  background: rgba(0, 0, 0, 0.38);
+}
+
+/* ---------- Panels (Cards & Modals) ---------- */
+.mc-theme .card,
+.mc-theme.dark-style .card,
+.mc-theme .modal-content,
+.mc-theme.dark-style .modal-content {
+  background-color: var(--mc-panel) !important;
+  color: var(--mc-text) !important;
+  border: 3px solid !important;
+  border-color: var(--mc-panel-hi) var(--mc-panel-lo) var(--mc-panel-lo) var(--mc-panel-hi) !important;
+  box-shadow: 0 0 0 2px var(--mc-outline), 6px 6px 0 2px rgba(0, 0, 0, 0.38) !important;
+}
+
+.mc-theme .card h1, .mc-theme .card h2, .mc-theme .card h3, .mc-theme .card h4,
+.mc-theme .card h5, .mc-theme .card h6, .mc-theme .card .card-title,
+.mc-theme .modal-content h5, .mc-theme .modal-content h6,
+.mc-theme.dark-style .card h5, .mc-theme.dark-style .card h6, .mc-theme.dark-style .card-title {
+  color: var(--mc-heading) !important;
+  text-shadow: var(--mc-heading-shadow);
+  font-weight: 700;
+}
+
+.mc-theme .card .card-title.text-primary,
+.mc-theme.dark-style .card .card-title.text-primary {
+  color: var(--mc-green) !important;
+}
+
+.mc-theme .card-header {
+  background: transparent !important;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.22) !important;
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.32);
+}
+.mc-theme.dark-style .card-header {
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.06);
+}
+.mc-theme .modal-header,
+.mc-theme .modal-footer {
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+.mc-theme .modal-backdrop.show {
+  opacity: 0.72;
+}
+
+/* Recessed sub-panels (vitals boxes, action boxes, dropzones) */
+.mc-theme div.border.rounded,
+.mc-theme .mc-recessed-box,
+.mc-theme .dropzone {
+  background-color: var(--mc-recess-bg) !important;
+  border: 2px solid !important;
+  border-color: var(--mc-recess-hi) var(--mc-recess-lo) var(--mc-recess-lo) var(--mc-recess-hi) !important;
+}
+.mc-theme .dropzone {
+  color: var(--mc-text) !important;
+  font-weight: 600;
+}
+.mc-theme .dropzone.dragover {
+  background-color: rgba(85, 255, 85, 0.16) !important;
+  border-color: #55ff55 !important;
+}
+
+/* Entrance animation */
+@keyframes mc-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.mc-theme.mc-fx .content-wrapper .card {
+  animation: mc-rise 0.35s cubic-bezier(.2, .8, .2, 1) both;
+}
+
+/* ---------- Sidebar (Oak / Spruce Planks & MSS Brand) ---------- */
+.mc-theme .bg-menu-theme,
+.mc-theme.dark-style .bg-menu-theme {
+  background-color: #6b4f2a !important;
+  background-image: linear-gradient(var(--mc-menu-shade), var(--mc-menu-shade)), var(--mc-menu-tex) !important;
+  background-size: cover, 48px 48px !important;
+  image-rendering: pixelated;
+  border-right: 3px solid #000 !important;
+  box-shadow: inset -3px 0 0 rgba(255, 255, 255, 0.14), 4px 0 0 rgba(0, 0, 0, 0.38) !important;
+}
+.mc-theme .menu-inner-shadow {
+  display: none !important;
+}
+
+/* Redesigned MSS Brand Header — Zero overlap, crisp readability */
+.mc-theme .app-brand.demo {
+  position: relative;
+  min-height: 84px !important;
+  height: auto !important;
+  margin-top: 0 !important;
+  padding: 12px 14px 10px 16px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  justify-content: center !important;
+  overflow: visible !important;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.45);
+  box-shadow: 0 2px 0 rgba(255, 255, 255, 0.1);
+}
+.mc-theme .app-brand-link {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-decoration: none;
+  width: 100%;
+}
+.mc-theme .app-brand-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mc-theme .app-brand-logo-icon {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 #000);
+  flex-shrink: 0;
+}
+.mc-theme .app-brand-text.demo {
+  font-family: var(--mc-font) !important;
+  font-size: 1.65rem !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: none !important;
+  filter: none !important;
+  text-shadow:
+    0 2px 0 #3c8527,
+    2px 2px 0 #000000,
+    -1px -1px 0 #000000,
+    1px -1px 0 #000000,
+    -1px 1px 0 #000000,
+    3px 3px 0 rgba(0, 0, 0, 0.75) !important;
+  margin: 0 !important;
+}
+.mc-theme .mc-brand-subtitle {
+  display: block;
+  font-family: var(--mc-font);
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #ffe28a;
+  text-shadow: 1px 1px 0 #000000, 0 0 4px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+  line-height: 1.15;
+}
+
+/* Clickable Bouncy Splash Badge */
+.mc-theme .mc-splash {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-family: var(--mc-font);
+  font-size: 11px;
+  font-weight: 700;
+  color: #ffff55;
+  background: rgba(0, 0, 0, 0.58);
+  border: 1px solid rgba(255, 255, 85, 0.55);
+  padding: 1px 6px;
+  text-shadow: 1px 1px 0 #3f3f00, 1px 1px 2px #000;
+  white-space: nowrap;
+  pointer-events: auto !important;
+  cursor: pointer;
+  user-select: none;
+  transform: rotate(-8deg);
+  transform-origin: center;
+  animation: mc-splash 1.1s ease-in-out infinite alternate;
+  max-width: 132px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  z-index: 6;
+  box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.mc-theme .mc-splash:hover {
+  background: rgba(20, 20, 20, 0.85);
+  border-color: #ffffff;
+  color: #ffffff;
+}
+@keyframes mc-splash {
+  from { transform: rotate(-8deg) scale(0.95); }
+  to   { transform: rotate(-8deg) scale(1.05); }
+}
+
+.mc-theme .bg-menu-theme .menu-link,
+.mc-theme.dark-style .bg-menu-theme .menu-link {
+  color: #f8f8f8 !important;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.85);
+  border: 2px solid transparent;
+  margin: 2px 0.75rem !important;
+  font-weight: 600;
+  transition: background-color 0.12s, transform 0.12s, border-color 0.12s;
+}
+.mc-theme .bg-menu-theme .menu-link .menu-icon {
+  color: #ffe8a3 !important;
+  filter: drop-shadow(1px 1px 0 #000);
+}
+.mc-theme .bg-menu-theme .menu-inner > .menu-item > .menu-link:hover {
+  background-color: rgba(255, 255, 255, 0.16) !important;
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateX(3px);
+}
+.mc-theme .bg-menu-theme .menu-inner > .menu-item.active > .menu-link,
+.mc-theme.dark-style .bg-menu-theme .menu-inner > .menu-item.active > .menu-link {
+  background-color: rgba(0, 0, 0, 0.52) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px #000, inset 0 0 0 2px rgba(60, 133, 39, 0.65) !important;
+  color: #ffff55 !important;
+}
+.mc-theme .bg-menu-theme .menu-inner > .menu-item.active:before {
+  display: none !important;
+}
+.mc-theme .bg-menu-theme .menu-header .menu-header-text,
+.mc-theme .bg-menu-theme .menu-header {
+  color: #ffd86b !important;
+  text-shadow: 2px 2px 0 #000;
+  font-weight: 700;
+}
+.mc-theme .bg-menu-theme .menu-header:before {
+  background-color: rgba(255, 216, 107, 0.55) !important;
+}
+
+/* ---------- Top Navbar (Stone Bricks) ---------- */
+.mc-theme .bg-navbar-theme,
+.mc-theme.dark-style .bg-navbar-theme {
+  background-color: #545454 !important;
+  background-image: linear-gradient(var(--mc-nav-shade), var(--mc-nav-shade)), var(--mc-nav-tex) !important;
+  background-size: cover, 48px 48px !important;
+  image-rendering: pixelated;
+  color: #ffffff !important;
+  border: 3px solid !important;
+  border-color: #8e8e8e #262626 #262626 #8e8e8e !important;
+  box-shadow: 0 0 0 2px #000, 5px 5px 0 2px rgba(0, 0, 0, 0.38) !important;
+  backdrop-filter: none !important;
+  height: auto !important;
+  min-height: 3.85rem;
+  padding-top: 0.45rem;
+  padding-bottom: 0.45rem;
+}
+.mc-theme .layout-navbar .fw-semibold,
+.mc-theme .layout-navbar .nav-link,
+.mc-theme .layout-navbar i {
+  color: #ffffff !important;
+  text-shadow: 2px 2px 0 #000;
+}
+.mc-theme .layout-navbar .text-muted {
+  color: #e2e2e2 !important;
+  text-shadow: 1px 1px 0 #000;
+}
+
+/* ---------- Buttons (Authentic Java Edition Beveled Widgets) ---------- */
+.mc-theme .btn {
+  --mc-b-bg: #6e6e6e;
+  --mc-b-hi: #aaaaaa;
+  --mc-b-lo: #3f3f3f;
+  --mc-b-text: #ffffff;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--mc-b-bg) !important;
+  background-image: none !important;
+  color: var(--mc-b-text) !important;
+  border: 2px solid #000 !important;
+  box-shadow: inset 2px 2px 0 var(--mc-b-hi), inset -2px -3px 0 var(--mc-b-lo) !important;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.72);
+  font-weight: 600;
+  transition: transform 0.06s ease, filter 0.12s ease, border-color 0.12s ease;
+}
+.mc-theme .btn:hover,
+.mc-theme .btn:focus-visible {
+  border-color: #ffffff !important;
+  filter: brightness(1.12);
+}
+.mc-theme .btn:active,
+.mc-theme .btn.active {
+  transform: translateY(1px);
+  box-shadow: inset 2px 2px 0 var(--mc-b-lo), inset -2px -2px 0 var(--mc-b-hi) !important;
+}
+.mc-theme .btn:focus {
+  outline: none;
+}
+.mc-theme .btn:disabled,
+.mc-theme .btn.disabled {
+  --mc-b-bg: #525256;
+  --mc-b-hi: #66666b;
+  --mc-b-lo: #38383c;
+  color: #b4b4bc !important;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.55);
+  opacity: 0.85 !important;
+  filter: none;
+  border-color: #1a1a1a !important;
+  cursor: not-allowed;
+}
+.mc-theme.dark-style .btn:disabled,
+.mc-theme.dark-style .btn.disabled {
+  --mc-b-bg: #26262b;
+  --mc-b-hi: #34343b;
+  --mc-b-lo: #18181c;
+  color: #7c7c88 !important;
+}
+
+/* Solid variants */
+.mc-theme .btn-primary,
+.mc-theme .btn-success {
+  --mc-b-bg: #3c8527;
+  --mc-b-hi: #6cc349;
+  --mc-b-lo: #1f4f12;
+}
+.mc-theme .btn-danger {
+  --mc-b-bg: #a8261c;
+  --mc-b-hi: #e0574a;
+  --mc-b-lo: #5c0f0a;
+}
+.mc-theme .btn-warning {
+  --mc-b-bg: #b9851f;
+  --mc-b-hi: #f0c95a;
+  --mc-b-lo: #6d4b0d;
+}
+.mc-theme .btn-info {
+  --mc-b-bg: #247d91;
+  --mc-b-hi: #58cde0;
+  --mc-b-lo: #114754;
+}
+.mc-theme .btn-secondary,
+.mc-theme .btn-label-secondary {
+  --mc-b-bg: #58585e;
+  --mc-b-hi: #888890;
+  --mc-b-lo: #323236;
+}
+.mc-theme .btn-xs {
+  padding: 0.18rem 0.58rem !important;
+  font-size: 0.8rem !important;
+}
+
+/* Outline variants: dark stone slab with bright, high-contrast label */
+.mc-theme .btn[class*="btn-outline-"] {
+  --mc-b-bg: #45454b;
+  --mc-b-hi: #707078;
+  --mc-b-lo: #252529;
+}
+.mc-theme .btn-outline-primary,
+.mc-theme .btn-outline-success { --mc-b-text: #86ff66; }
+.mc-theme .btn-outline-danger  { --mc-b-text: #ff8b82; }
+.mc-theme .btn-outline-warning { --mc-b-text: #ffe066; }
+.mc-theme .btn-outline-info    { --mc-b-text: #7ef4ff; }
+.mc-theme .btn-outline-secondary { --mc-b-text: #f2f2f5; }
+
+.mc-theme .btn[class*="btn-outline-"].active {
+  --mc-b-bg: #3c8527;
+  --mc-b-hi: #6cc349;
+  --mc-b-lo: #1f4f12;
+  --mc-b-text: #ffffff;
+  border-color: #ffffff !important;
+}
+
+/* Enchanted glint sweep on the main start button and on hover of primary buttons */
+.mc-theme .btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, transparent 30%, rgba(190, 140, 255, 0.45) 45%, rgba(255, 255, 255, 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+  opacity: 0;
+}
+.mc-theme.mc-fx #btnStart:not(:disabled)::after {
+  opacity: 1;
+  animation: mc-glint 3.2s ease-in-out infinite;
+}
+.mc-theme.mc-fx .btn-primary:not(:disabled):hover::after,
+.mc-theme.mc-fx .btn-success:not(:disabled):hover::after {
+  opacity: 1;
+  animation: mc-glint 0.9s ease-out 1;
+}
+@keyframes mc-glint {
+  0%   { transform: translateX(-120%); }
+  60%  { transform: translateX(120%); }
+  100% { transform: translateX(120%); }
+}
+
+.mc-theme.dark-style .btn-close,
+.mc-theme .layout-navbar .btn-close {
+  filter: invert(1) grayscale(1) brightness(2);
+}
+
+/* ---------- Badges (Minecraft Tooltip Plate Style — High Contrast in All Modes) ---------- */
+.mc-theme .badge {
+  font-weight: 600;
+  font-size: 0.78rem;
+  border: 1px solid currentColor;
+  text-shadow: 1px 1px 0 #000000;
+  letter-spacing: 0.03em;
+}
+.mc-theme [class*="bg-label-"] {
+  background-color: #1c1824 !important;
+  box-shadow: 0 0 0 1px #000000, inset 0 0 6px rgba(0, 0, 0, 0.5);
+}
+.mc-theme .bg-label-primary,
+.mc-theme .bg-label-success { color: #72ff59 !important; border-color: #3c8527 !important; }
+.mc-theme .bg-label-info    { color: #66f2ff !important; border-color: #247d91 !important; }
+.mc-theme .bg-label-warning { color: #ffca4b !important; border-color: #b9851f !important; }
+.mc-theme .bg-label-danger  { color: #ff7373 !important; border-color: #a8261c !important; }
+.mc-theme .bg-label-secondary { color: #dedee8 !important; border-color: #606068 !important; }
+
+.mc-theme .bg-success   { background-color: #3cb52a !important; color: #fff !important; }
+.mc-theme .bg-danger    { background-color: #d03a2f !important; color: #fff !important; }
+.mc-theme .bg-warning   { background-color: #d99b1e !important; color: #fff !important; }
+.mc-theme .bg-info      { background-color: #269eb0 !important; color: #fff !important; }
+.mc-theme .bg-secondary { background-color: #5e5e66 !important; color: #fff !important; }
+.mc-theme .bg-primary   { background-color: #3c8527 !important; color: #fff !important; }
+
+/* Status dots: true 10x10 pixel squares, pulsing like a redstone lamp */
+.mc-theme #statusDot,
+.mc-theme #wsStatusDot,
+.mc-theme .mc-status-dot {
+  width: 10px !important;
+  height: 10px !important;
+  min-width: 10px !important;
+  min-height: 10px !important;
+  padding: 0 !important;
+  display: inline-block !important;
+  vertical-align: middle;
+  border-radius: 0 !important;
+  border: 2px solid #000000 !important;
+  box-sizing: content-box !important;
+}
+@keyframes mc-lamp {
+  0%, 100% { box-shadow: 0 0 6px 1px rgba(85, 255, 85, 0.55); }
+  50%      { box-shadow: 0 0 12px 3px rgba(85, 255, 85, 0.95); }
+}
+.mc-theme.mc-fx #statusDot.bg-success,
+.mc-theme.mc-fx #wsStatusDot.bg-success,
+.mc-theme.mc-fx .mc-status-dot.bg-success {
+  animation: mc-lamp 1.6s ease-in-out infinite;
+}
+
+/* ---------- Telemetry Icons as Inventory Slots ---------- */
+.mc-theme .avatar-initial {
+  background-color: #78787c !important;
+  border: 2px solid !important;
+  border-color: #333336 #ffffff #ffffff #333336 !important;
+  box-shadow: 0 0 0 1px #000000;
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.75);
+}
+.mc-theme .avatar-initial.bg-label-info    { color: #7ef4ff !important; }
+.mc-theme .avatar-initial.bg-label-success { color: #8aff70 !important; }
+.mc-theme .avatar-initial.bg-label-primary { color: #dfb3ff !important; }
+.mc-theme .avatar-initial.bg-label-warning { color: #ffe066 !important; }
+.mc-theme .avatar-initial.bg-label-danger  { color: #ff8a80 !important; }
+
+.mc-theme #metricCpu,
+.mc-theme #metricRam,
+.mc-theme #metricViewDist,
+.mc-theme #uptimeText {
+  font-family: var(--mc-font) !important;
+  font-weight: 700;
+}
+
+/* ---------- Progress Bars (XP-bar style, segmented) ---------- */
+.mc-theme .progress {
+  background-color: #161618 !important;
+  border: 2px solid #000;
+  box-shadow: inset 0 0 0 1px #3a3a3a;
+  overflow: hidden;
+}
+.mc-theme .progress-bar {
+  background-color: #7fe023;
+  background-image:
+    repeating-linear-gradient(90deg, transparent 0 14px, rgba(0, 0, 0, 0.35) 14px 16px),
+    linear-gradient(rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0) 55%) !important;
+  box-shadow: 0 0 8px rgba(127, 224, 35, 0.45);
+  transition: width 0.4s steps(12, end);
+}
+.mc-theme .progress-bar.bg-danger  { background-color: #e0302a !important; box-shadow: 0 0 8px rgba(224, 48, 42, 0.45); }
+.mc-theme .progress-bar.bg-warning { background-color: #c98a2c !important; box-shadow: 0 0 8px rgba(201, 138, 44, 0.45); }
+.mc-theme .progress-bar.bg-info    { background-color: #2fb3c6 !important; }
+.mc-theme .progress-bar.bg-success { background-color: #7fe023 !important; }
+
+/* ---------- Forms (Black Minecraft Command/Sign Fields) ---------- */
+.mc-theme .form-control,
+.mc-theme .form-select,
+.mc-theme.dark-style .form-control,
+.mc-theme.dark-style .form-select,
+.mc-theme .input-group-text {
+  background-color: #0d0d10 !important;
+  color: #f0f0f5 !important;
+  border: 2px solid #8c8c94 !important;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.65) !important;
+  font-family: var(--mc-mono);
+  font-size: 0.88rem;
+}
+.mc-theme .form-control::placeholder {
+  color: #7c7c88 !important;
+}
+.mc-theme .form-control:focus,
+.mc-theme .form-select:focus {
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(85, 255, 85, 0.3) !important;
+  caret-color: #55ff55;
+}
+.mc-theme .form-select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8' shape-rendering='crispEdges'%3e%3cpath fill='%23f0f0f5' d='M0 2h8v1H7v1H6v1H5v1H3V5H2V4H1V3H0z'/%3e%3c/svg%3e") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 0.75rem center !important;
+  background-size: 10px 10px !important;
+}
+.mc-theme .form-select option {
+  background: #18181c;
+  color: #f0f0f5;
+}
+.mc-theme .input-group .input-group-text {
+  color: #55ff55 !important;
+  border-right: 0 !important;
+}
+.mc-theme .input-group .form-control {
+  border-left: 0 !important;
+}
+.mc-theme .form-label {
+  color: var(--mc-heading) !important;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-transform: none;
+}
+
+/* Sliders: dark track with a stone-button handle */
+.mc-theme .form-range { height: 22px; }
+.mc-theme .form-range::-webkit-slider-runnable-track {
+  height: 10px;
+  background: #0d0d10;
+  border: 2px solid #7e7e86;
+  border-radius: 0;
+}
+.mc-theme .form-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 22px;
+  margin-top: -8px;
+  border-radius: 0;
+  background: #8b8b8b;
+  border: 2px solid #000;
+  box-shadow: inset 2px 2px 0 #d6d6d6, inset -2px -2px 0 #4f4f4f;
+  cursor: pointer;
+}
+.mc-theme .form-range:hover::-webkit-slider-thumb {
+  border-color: #fff;
+  background: #9e9e9e;
+}
+.mc-theme .form-range::-moz-range-track {
+  height: 6px;
+  background: #0d0d10;
+  border: 2px solid #7e7e86;
+  border-radius: 0;
+}
+.mc-theme .form-range::-moz-range-thumb {
+  width: 12px;
+  height: 20px;
+  border-radius: 0;
+  background: #8b8b8b;
+  border: 2px solid #000;
+  box-shadow: inset 2px 2px 0 #d6d6d6, inset -2px -2px 0 #4f4f4f;
+}
+.mc-theme .form-check-input {
+  border-radius: 0 !important;
+  border: 2px solid #000 !important;
+  background-color: #8b8b8b;
+  box-shadow: inset 2px 2px 0 #373737;
+}
+.mc-theme .form-check-input:checked {
+  background-color: #3c8527 !important;
+}
+
+/* ---------- Console & JVM Terminal (In-game Chat / Command Block Look) ---------- */
+.mc-theme #consoleContainer {
+  background-color: rgba(8, 8, 12, 0.90) !important;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 50%, transparent 50%);
+  background-size: 100% 4px;
+  color: #e8e8ee !important;
+  font-family: var(--mc-mono) !important;
+  border: 2px solid #000;
+  box-shadow: inset 0 0 0 2px #3a3a42, inset 0 0 28px rgba(0, 0, 0, 0.85);
+}
+.mc-theme #consoleContainer .log-line {
+  text-shadow: 1px 1px 0 #000;
+  font-size: 13px;
+  line-height: 1.45;
+}
+.mc-theme #consoleContainer .text-warning { color: #ffaa00 !important; }
+.mc-theme #consoleContainer .text-danger  { color: #ff5555 !important; }
+.mc-theme #consoleContainer .text-success { color: #55ff55 !important; }
+.mc-theme #consoleContainer .text-muted   { color: #b0b0bc !important; }
+.mc-theme #consoleContainer .fw-bold      { color: #ffff55 !important; }
+.mc-theme #consoleContainer .log-line:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.mc-theme .jvm-terminal-box {
+  background-color: #0b0b0f !important;
+  border: 2px solid #000000 !important;
+  box-shadow: inset 0 0 0 2px #3a3a44 !important;
+}
+
+/* ---------- Inventory Item Tooltip Card (.mc-slot-detail-card) ---------- */
+.mc-theme .mc-slot-detail-card {
+  background-color: #120314 !important;
+  border: 2px solid #4a1594 !important;
+  box-shadow: 0 0 0 2px #000000, inset 0 0 14px rgba(160, 90, 255, 0.14) !important;
+  color: #f2f2f7 !important;
+}
+.mc-theme .mc-slot-detail-card .text-muted {
+  color: #b8b0cc !important;
+}
+.mc-theme .mc-slot-detail-card .text-info,
+.mc-theme .mc-slot-detail-card code {
+  color: #66f2ff !important;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ---------- Tables & Lists ---------- */
+.mc-theme .table,
+.mc-theme.dark-style .table {
+  color: var(--mc-text) !important;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+.mc-theme .table thead th {
+  color: var(--mc-heading) !important;
+  font-weight: 700;
+  border-bottom: 2px solid rgba(0, 0, 0, 0.3) !important;
+}
+.mc-theme .table > :not(caption) > * > * {
+  background-color: transparent !important;
+  color: inherit !important;
+}
+.mc-theme .list-group-item,
+.mc-theme.dark-style .list-group-item {
+  background-color: var(--mc-recess-bg) !important;
+  color: var(--mc-text) !important;
+  border-color: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* ---------- Alerts ---------- */
+.mc-theme .alert {
+  border: 2px solid #000 !important;
+  box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.2), inset -2px -2px 0 rgba(0, 0, 0, 0.25);
+}
+.mc-theme .alert-warning {
+  background-color: #2e2208 !important;
+  color: #ffe066 !important;
+}
+
+/* ---------- Toasts (Advancement Style) ---------- */
+@keyframes mc-toast-in {
+  from { transform: translateX(110%); }
+  to   { transform: none; }
+}
+.mc-theme .toast,
+.mc-theme .toast.bg-primary,
+.mc-theme .toast.bg-success,
+.mc-theme .toast.bg-danger,
+.mc-theme .toast.bg-warning {
+  background-color: #1e1e22 !important;
+  color: #ffffff !important;
+  border: 2px solid #000 !important;
+  box-shadow:
+    inset 0 0 0 2px #555,
+    inset 6px 0 0 2px var(--mc-toast-accent, #55ffff),
+    4px 4px 0 rgba(0, 0, 0, 0.45) !important;
+  animation: mc-toast-in 0.35s cubic-bezier(.2, .8, .2, 1) both;
+}
+.mc-theme .toast .toast-body {
+  padding-left: 1.1rem;
+  font-family: var(--mc-font);
+}
+.mc-theme .toast .toast-body strong {
+  color: var(--mc-toast-accent, #ffff55);
+  text-shadow: 2px 2px 0 #000;
+}
+.mc-theme .toast.bg-success { --mc-toast-accent: #55ff55; }
+.mc-theme .toast.bg-danger  { --mc-toast-accent: #ff5555; }
+.mc-theme .toast.bg-warning { --mc-toast-accent: #ffaa00; }
+.mc-theme .toast.bg-primary { --mc-toast-accent: #ffff55; }
+
+/* ---------- FX Toggle Button State ---------- */
+.mc-theme #btnFxToggle.mc-fx-off {
+  --mc-b-text: #a4a4ae;
+}
+
+/* ---------- Accessibility: Respect Reduced Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .mc-theme *,
+  .mc-theme *::after,
+  .mc-theme body::before {
+    animation: none !important;
+    transition: none !important;
+  }
+}

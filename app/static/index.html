@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html
+  lang="en"
+  class="light-style layout-menu-fixed mc-theme mc-fx"
+  dir="ltr"
+  data-theme="theme-default"
+  data-assets-path="assets/"
+  data-template="vertical-menu-template-free"
+>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
+    />
+
+    <title>MSS — Minecraft Simple Server</title>
+
+    <meta name="description" content="MSS (Minecraft Simple Server)" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="assets/img/favicon/favicon.ico" />
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="assets/vendor/fonts/boxicons.css" />
+
+    <!-- Core CSS -->
+    <link rel="stylesheet" href="assets/vendor/css/core.css" class="template-customizer-core-css" />
+    <link rel="stylesheet" href="assets/vendor/css/theme-default.css" class="template-customizer-theme-css" />
+    <link rel="stylesheet" href="assets/css/demo.css" />
+    <!-- Minecraft Authentic Theme & Visual Layer -->
+    <link rel="stylesheet" href="assets/css/minecraft-theme.css" />
+
+    <!-- Vendors CSS -->
+    <link rel="stylesheet" href="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+
+    <!-- Helpers -->
+    <script src="assets/vendor/js/helpers.js"></script>
+    <script src="assets/js/config.js"></script>
+
+    <style>
+      #consoleContainer {
+          background-color: #08080c;
+          color: #e8e8ee;
+          font-family: 'Courier New', Courier, monospace;
+          padding: 15px;
+          height: 350px;
+          overflow-y: auto;
+      }
+      .log-line { margin: 0; padding: 2px 0; font-size: 13px; }
+
+      .dropzone {
+          border: 2px dashed #55ff55;
+          padding: 2rem;
+          text-align: center;
+          cursor: pointer;
+          transition: background-color 0.2s, border-color 0.2s;
+      }
+
+      .mc-avatar {
+          image-rendering: pixelated;
+          object-fit: cover;
+          border: 2px solid #000000 !important;
+          box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.45);
+      }
+
+      /* Minecraft Inventory GUI Styles (Authentic Container) */
+      @font-face {
+          font-family: 'Minecraft';
+          src: url('assets/vendor/fonts/MinecraftTen.woff') format('woff');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+      }
+
+      .mc-inventory-wrapper {
+          width: 100%;
+          user-select: none;
+      }
+      .mc-inventory-scroll {
+          width: 100%;
+          overflow-x: auto;
+          padding: 2px 2px 8px 2px;
+      }
+      .mc-inventory-panel {
+          background-color: #c6c6c6;
+          border-top: 2px solid #ffffff;
+          border-left: 2px solid #ffffff;
+          border-right: 2px solid #555555;
+          border-bottom: 2px solid #555555;
+          outline: 2px solid #000000;
+          padding: 8px 10px;
+          display: flex;
+          align-items: flex-start;
+          justify-content: space-between;
+          gap: 16px;
+          width: 100%;
+          min-width: 620px;
+          box-sizing: border-box;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+      }
+      .mc-armor-column {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          height: 172px;
+          width: 40px;
+          flex-shrink: 0;
+      }
+      .mc-middle-column {
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          height: 172px;
+          flex: 1;
+          min-width: 60px;
+      }
+      .mc-inv-column {
+          display: flex;
+          flex-direction: column;
+          height: 172px;
+          width: 360px;
+          flex-shrink: 0;
+      }
+      .mc-grid-main {
+          display: grid;
+          grid-template-columns: repeat(9, 40px);
+          grid-template-rows: repeat(3, 40px);
+          width: 360px;
+          height: 120px;
+          gap: 0;
+      }
+      .mc-inv-gap {
+          height: 12px;
+          flex-shrink: 0;
+      }
+      .mc-grid-hotbar {
+          display: grid;
+          grid-template-columns: repeat(9, 40px);
+          grid-template-rows: 40px;
+          width: 360px;
+          height: 40px;
+          gap: 0;
+      }
+      .mc-slot {
+          width: 40px;
+          height: 40px;
+          min-width: 40px;
+          min-height: 40px;
+          background-color: #8b8b8b;
+          border-top: 2px solid #373737;
+          border-left: 2px solid #373737;
+          border-right: 2px solid #ffffff;
+          border-bottom: 2px solid #ffffff;
+          box-sizing: border-box;
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          user-select: none;
+          overflow: hidden;
+          image-rendering: pixelated;
+      }
+      .mc-slot:hover {
+          box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.28);
+          z-index: 5;
+      }
+      .mc-slot.active-selected {
+          box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.35);
+          outline: 2px solid #ffffff;
+          outline-offset: -2px;
+          z-index: 6;
+      }
+      .mc-slot.empty {
+          background-color: #8b8b8b;
+      }
+      /* Modded items: preserve existing visual styling */
+      .mc-slot.filled.modded {
+          border-top-color: #554422;
+          border-left-color: #554422;
+          border-right-color: #eab308;
+          border-bottom-color: #eab308;
+          background: linear-gradient(135deg, #1c1d28 0%, #25221b 100%);
+      }
+      .mc-slot.filled.modded:hover {
+          box-shadow: inset 0 0 0 9999px rgba(250, 204, 21, 0.2), 0 0 8px rgba(250, 204, 21, 0.45);
+      }
+      .mc-ghost-icon {
+          width: 32px;
+          height: 32px;
+          opacity: 0.72;
+          pointer-events: none;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+      }
+      .mc-ghost-icon img {
+          width: 32px;
+          height: 32px;
+          image-rendering: pixelated;
+          object-fit: contain;
+      }
+      .mc-item-img {
+          width: 32px;
+          height: 32px;
+          image-rendering: pixelated;
+          object-fit: contain;
+          pointer-events: none;
+          filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+      }
+      .mc-slot-count {
+          position: absolute;
+          bottom: 1px;
+          right: 2px;
+          font-family: 'Minecraft', monospace;
+          font-size: 13px;
+          font-weight: normal;
+          color: #ffffff;
+          text-shadow: 2px 2px 0px #3f3f3f;
+          pointer-events: none;
+          line-height: 1;
+          z-index: 3;
+      }
+      .mc-durability-bar {
+          position: absolute;
+          bottom: 3px;
+          left: 4px;
+          right: 4px;
+          height: 3px;
+          background-color: #000000;
+          pointer-events: none;
+          z-index: 4;
+          box-shadow: 0 1px 0 #000000;
+      }
+      .mc-durability-fill {
+          height: 2px;
+          box-shadow: 0 1px 0 rgba(0, 0, 0, 0.45);
+      }
+      .mc-mod-text {
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          padding: 1px;
+          text-align: center;
+          line-height: 1.1;
+          pointer-events: none;
+          overflow: hidden;
+          box-sizing: border-box;
+      }
+      .mc-slot.has-count .mc-mod-text {
+          padding-bottom: 6px;
+      }
+      .mc-mod-namespace {
+          font-size: 6px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0;
+          color: #a78bfa;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 36px;
+          display: block;
+          line-height: 1;
+      }
+      .mc-mod-name {
+          font-size: 7px;
+          font-weight: 700;
+          color: #fde047;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          max-width: 36px;
+          display: block;
+          line-height: 1.1;
+      }
+      .mc-slot-detail-card {
+          background-color: #120314;
+          border: 2px solid #4a1594;
+          padding: 0.75rem 1rem;
+          min-height: 54px;
+      }
+      .mc-item-preview-img {
+          width: 36px;
+          height: 36px;
+          image-rendering: pixelated;
+          object-fit: contain;
+          filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.6));
+      }
+      .mc-item-preview-box {
+          width: 36px;
+          height: 36px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background-color: rgba(234, 179, 8, 0.12);
+          border: 1px solid rgba(234, 179, 8, 0.3);
+          font-size: 20px;
+      }
+      .jvm-terminal-box {
+          background-color: #09090b;
+          border: 2px solid #000000;
+          padding: 0.65rem 0.9rem;
+          font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+          font-size: 0.8125rem;
+          line-height: 1.5;
+          color: #cbd5e1;
+          overflow-x: auto;
+          white-space: nowrap;
+          scrollbar-width: thin;
+          scrollbar-color: #3f3f46 transparent;
+      }
+      .jvm-terminal-box::-webkit-scrollbar {
+          height: 6px;
+      }
+      .jvm-terminal-box::-webkit-scrollbar-track {
+          background: transparent;
+      }
+      .jvm-terminal-box::-webkit-scrollbar-thumb {
+          background-color: #3f3f46;
+      }
+      .jvm-token-prompt {
+          color: #55ff55;
+          user-select: none;
+          margin-right: 0.5rem;
+          font-weight: 700;
+      }
+      .jvm-token-bin {
+          color: #38bdf8;
+          font-weight: 600;
+      }
+      .jvm-token-mem {
+          color: #34d399;
+          font-weight: 600;
+      }
+      .jvm-token-cpu {
+          color: #2dd4bf;
+          font-weight: 500;
+      }
+      .jvm-token-flag {
+          color: #cbd5e1;
+      }
+      .jvm-token-target {
+          color: #c084fc;
+          font-weight: 500;
+      }
+      .jvm-token-arg {
+          color: #94a3b8;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Ambient Minecraft Particle Canvas -->
+    <canvas id="mcParticles"></canvas>
+
+    <!-- Layout wrapper -->
+    <div class="layout-wrapper layout-content-navbar">
+      <div class="layout-container">
+
+        <!-- Menu -->
+        <aside id="layout-menu" class="layout-menu menu-vertical menu bg-menu-theme">
+          <div class="app-brand demo">
+            <a href="/" class="app-brand-link">
+              <div class="app-brand-top">
+                <img src="/static/icons/grass_block_side.png" alt="MSS" class="app-brand-logo-icon">
+                <span class="app-brand-text demo menu-text fw-bolder">MSS</span>
+              </div>
+              <span class="mc-brand-subtitle">Minecraft Simple Server</span>
+            </a>
+            <span class="mc-splash" id="mcSplash" title="Click to roll a new splash!">100% lag-free!</span>
+
+            <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto d-block d-xl-none">
+              <i class="bx bx-chevron-left bx-sm align-middle"></i>
+            </a>
+          </div>
+
+          <div class="menu-inner-shadow"></div>
+
+          <ul class="menu-inner py-1">
+            <!-- Dashboard -->
+            <li class="menu-item active" data-tab="all">
+              <a href="javascript:void(0);" onclick="switchTab('all')" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-home-circle"></i>
+                <div data-i18n="nav_overview">Overview</div>
+              </a>
+            </li>
+
+            <li class="menu-header small text-uppercase">
+              <span class="menu-header-text" data-i18n="nav_management">Management</span>
+            </li>
+
+            <li class="menu-item" data-tab="console">
+              <a href="javascript:void(0);" onclick="switchTab('console')" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-terminal"></i>
+                <div class="d-flex align-items-center"><span data-i18n="nav_console">Console</span> <span id="wsStatusDot" class="badge badge-center rounded-pill bg-success w-px-10 h-px-10 ms-2"></span></div>
+              </a>
+            </li>
+
+            <li class="menu-item" data-tab="players">
+              <a href="javascript:void(0);" onclick="switchTab('players')" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-user"></i>
+                <div data-i18n="nav_players">Players</div>
+                <span id="sidebarPlayersCount" class="badge bg-label-success ms-auto">0</span>
+              </a>
+            </li>
+
+            <li class="menu-item" data-tab="resources">
+              <a href="javascript:void(0);" onclick="switchTab('resources')" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-chip"></i>
+                <div data-i18n="nav_resources">Core &amp; Resources</div>
+              </a>
+            </li>
+
+            <li class="menu-item" data-tab="addons">
+              <a href="javascript:void(0);" onclick="switchTab('addons')" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-cube-alt"></i>
+                <div id="sidebarAddonsLabel">Plugins</div>
+                <span id="addonsCount" class="badge bg-label-primary ms-auto">0</span>
+              </a>
+            </li>
+
+            <li class="menu-item" data-tab="world">
+              <a href="javascript:void(0);" onclick="switchTab('world')" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-globe"></i>
+                <div data-i18n="nav_world">World Management</div>
+              </a>
+            </li>
+
+            <li class="menu-header small text-uppercase"><span class="menu-header-text" data-i18n="nav_settings">Settings</span></li>
+            <li class="menu-item">
+              <a href="javascript:void(0);" onclick="openPropertiesModal()" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-cog"></i>
+                <div>server.properties</div>
+              </a>
+            </li>
+            <li class="menu-item">
+              <a href="javascript:void(0);" onclick="toggleEulaModal()" class="menu-link">
+                <i class="menu-icon tf-icons bx bx-check-shield"></i>
+                <div data-i18n="nav_eula">EULA License</div>
+                <span id="eulaChip" class="badge bg-label-secondary ms-auto">OK</span>
+              </a>
+            </li>
+          </ul>
+        </aside>
+        <!-- / Menu -->
+
+        <!-- Layout container -->
+        <div class="layout-page">
+          <!-- Navbar -->
+          <nav
+            class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+            id="layout-navbar"
+          >
+            <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+              <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
+                <i class="bx bx-menu bx-sm"></i>
+              </a>
+            </div>
+
+            <div class="navbar-nav-right d-flex flex-wrap align-items-center justify-content-between gap-2 w-100" id="navbar-collapse">
+              <div class="navbar-nav align-items-center">
+                <div class="nav-item d-flex align-items-center flex-wrap gap-1">
+                  <span id="statusDot" class="badge badge-center rounded-pill bg-secondary w-px-10 h-px-10 me-2"></span>
+                  <span class="fw-semibold me-2" id="sidebarEngineTitle">Paper 1.20.4</span>
+                  <small class="text-muted" id="statusText">Stopped</small>
+                  <span class="badge bg-label-info ms-2" id="sidebarPortBadge">:25565</span>
+                </div>
+              </div>
+
+              <ul class="navbar-nav flex-row align-items-center ms-auto flex-wrap gap-2">
+                <li class="nav-item lh-1">
+                  <button class="btn btn-sm btn-outline-info no-sound" id="btnLangToggle" onclick="toggleLanguage()" title="Switch Language (EN / RU)">
+                    <i class="bx bx-globe"></i> <span id="langToggleText">EN</span>
+                  </button>
+                </li>
+                <li class="nav-item lh-1">
+                  <button class="btn btn-sm btn-outline-primary no-sound" id="btnFxToggle" onclick="MinecraftTheme.toggleFx()" title="Minecraft visual FX (particles, XP orbs, glint)">
+                    <i class="bx bxs-magic-wand text-warning" id="fxToggleIcon"></i> <span id="fxToggleText">FX: ON</span>
+                  </button>
+                </li>
+                <li class="nav-item lh-1">
+                  <button class="btn btn-sm btn-outline-secondary no-sound" id="btnAudioToggle" onclick="toggleSound()" title="Minecraft UI Sounds">
+                    <i class="bx bx-volume-full" id="audioToggleIcon"></i> <span id="audioToggleText">Sound</span>
+                  </button>
+                </li>
+                <li class="nav-item lh-1">
+                  <button class="btn btn-sm btn-outline-secondary no-sound" id="themeToggleBtn" onclick="toggleTheme()" title="Switch Day / Night Theme">
+                    <i class="bx bx-moon" id="themeIcon"></i> <span id="themeToggleText" data-i18n="btn_theme">Theme</span>
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </nav>
+          <!-- / Navbar -->
+
+          <!-- Content wrapper -->
+          <div class="content-wrapper">
+            <!-- Content -->
+            <div class="container-xxl flex-grow-1 container-p-y">
+
+              <div class="row" id="block-overview">
+                <!-- Server Control Card -->
+                <div class="col-lg-8 col-md-12 mb-4 order-0">
+                  <div class="card h-100">
+                    <div class="card-body d-flex flex-column justify-content-between">
+                      <div>
+                        <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                          <h5 class="card-title text-primary mb-0 d-flex align-items-center flex-wrap gap-2">
+                            <span id="bannerEngineTitle">Paper 1.20.4</span>
+                            <span class="badge bg-label-primary" id="jarFoundBadge">server.jar</span>
+                          </h5>
+                          <div class="d-flex align-items-center gap-2 small">
+                            <span class="text-muted">WebSocket:</span>
+                            <span id="wsStatusText" class="badge bg-label-success">Ready</span>
+                          </div>
+                        </div>
+                        <p class="mb-4" id="bannerSummaryText">
+                          Allocated 2–4 GB RAM, 4 CPU threads, view distance 10 chunks.
+                        </p>
+                      </div>
+
+                      <div class="d-flex flex-wrap gap-2">
+                        <button id="btnStart" onclick="startServer()" class="btn btn-primary" data-i18n="btn_start_server">Start Server</button>
+                        <button id="btnStop" onclick="stopServer()" disabled class="btn btn-outline-secondary" data-i18n="btn_stop">Stop</button>
+                        <button id="btnRestart" onclick="restartServer()" disabled class="btn btn-outline-warning" data-i18n="btn_restart">Restart</button>
+                        <button id="btnKill" onclick="killServer()" disabled class="btn btn-danger">Kill</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Quick Presets -->
+                <div class="col-lg-4 col-md-12 order-1 mb-4">
+                  <div class="card h-100">
+                    <div class="card-header d-flex align-items-center justify-content-between pb-2">
+                      <div class="card-title mb-0">
+                        <h5 class="m-0 me-2" data-i18n="presets_title">Quick Presets</h5>
+                        <small class="text-muted" data-i18n="presets_subtitle">1-Click Setup</small>
+                      </div>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div class="d-flex flex-wrap gap-2">
+                        <button onclick="applyPreset('vanilla_light')" id="preset-vanilla_light" class="btn btn-sm btn-outline-primary preset-btn">Vanilla · 2GB</button>
+                        <button onclick="applyPreset('paper_optimized')" id="preset-paper_optimized" class="btn btn-sm btn-primary preset-btn">Paper · 4GB</button>
+                        <button onclick="applyPreset('fabric_perf')" id="preset-fabric_perf" class="btn btn-sm btn-outline-primary preset-btn">Fabric · 6GB</button>
+                        <button onclick="applyPreset('forge_heavy')" id="preset-forge_heavy" class="btn btn-sm btn-outline-primary preset-btn">Forge · 8GB</button>
+                        <button onclick="applyPreset('neoforge_modpack')" id="preset-neoforge_modpack" class="btn btn-sm btn-outline-primary preset-btn">NeoForge · 8GB</button>
+                        <button onclick="applyPreset('extreme_server')" id="preset-extreme_server" class="btn btn-sm btn-outline-primary preset-btn">Extreme · 16GB</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Telemetry -->
+              <div class="row mb-4" id="block-telemetry">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-body">
+                      <div class="row">
+                        <div class="col-md-3 col-6 mb-3 mb-md-0">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <span class="avatar-initial rounded bg-label-info"><i class="bx bx-chip"></i></span>
+                            </div>
+                            <div>
+                              <span class="d-block text-muted">CPU</span>
+                              <h5 class="mb-0" id="metricCpu">0.0%</h5>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-6 mb-3 mb-md-0">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <span class="avatar-initial rounded bg-label-success"><i class="bx bx-memory-card"></i></span>
+                            </div>
+                            <div>
+                              <span class="d-block text-muted">RAM</span>
+                              <h5 class="mb-0" id="metricRam">0 MB</h5>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <span class="avatar-initial rounded bg-label-primary"><i class="bx bx-low-vision"></i></span>
+                            </div>
+                            <div>
+                              <span class="d-block text-muted" data-i18n="telemetry_view_dist">View Distance</span>
+                              <h5 class="mb-0" id="metricViewDist">10 chunks</h5>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-md-3 col-6">
+                          <div class="d-flex align-items-center">
+                            <div class="avatar flex-shrink-0 me-3">
+                              <span class="avatar-initial rounded bg-label-warning"><i class="bx bx-time-five"></i></span>
+                            </div>
+                            <div>
+                              <span class="d-block text-muted" data-i18n="telemetry_uptime">Uptime</span>
+                              <h5 class="mb-0"><span id="uptimeText">00:00:00</span> <small class="text-muted ms-1" id="metricPid"></small></h5>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Console -->
+              <div class="row mb-4" id="block-console">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <h5 class="mb-0" data-i18n="console_title">Server Terminal</h5>
+                      <div>
+                        <button id="btnAutoScroll" onclick="toggleAutoScroll()" class="btn btn-sm btn-primary me-2" data-i18n="btn_autoscroll">Auto-scroll</button>
+                        <button onclick="clearConsole()" class="btn btn-sm btn-outline-secondary" data-i18n="btn_clear">Clear</button>
+                      </div>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div id="consoleContainer" class="mb-3">
+                        <div class="log-line" data-i18n="console_ready">Ready. Start the server or enter a command below...</div>
+                      </div>
+
+                      <div class="input-group input-group-merge">
+                        <span class="input-group-text"><i class="bx bx-terminal"></i></span>
+                        <input type="text" id="commandInput" class="form-control" data-i18n-placeholder="console_placeholder" placeholder="Enter command (e.g. op Player, list, help)..." onkeydown="if(event.key==='Enter') executeCommand()">
+                        <button class="btn btn-primary" onclick="executeCommand()" data-i18n="btn_send">Send</button>
+                      </div>
+
+                      <div class="mt-3 d-flex flex-wrap gap-2">
+                        <button onclick="sendQuickCommand('list')" class="btn btn-xs btn-label-secondary">list</button>
+                        <button onclick="sendQuickCommand('tps')" class="btn btn-xs btn-label-secondary">tps</button>
+                        <button onclick="sendQuickCommand('save-all')" class="btn btn-xs btn-label-secondary">save-all</button>
+                        <button onclick="sendQuickCommand('time set day')" class="btn btn-xs btn-label-secondary">time set day</button>
+                        <button onclick="sendQuickCommand('weather clear')" class="btn btn-xs btn-label-secondary">weather clear</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Resources & Engine -->
+              <div class="row mb-4" id="block-resources">
+                <div class="col-md-6 mb-4 mb-md-0">
+                  <div class="card h-100">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0" data-i18n="engine_card_title">Engine &amp; Version</h5>
+                      <span class="badge bg-label-info" id="versionsCountBadge">Versions</span>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div class="row mb-3">
+                        <div class="col-6">
+                          <label class="form-label" data-i18n="label_core">Server Core</label>
+                          <select id="engineSelect" onchange="onEngineChange()" class="form-select">
+                            <option value="Paper">Paper</option>
+                            <option value="Vanilla">Vanilla</option>
+                            <option value="Fabric">Fabric</option>
+                            <option value="Forge">Forge</option>
+                            <option value="NeoForge">NeoForge</option>
+                          </select>
+                        </div>
+                        <div class="col-6">
+                          <label class="form-label"><span data-i18n="label_version">Version</span> <span id="versionLoadingIndicator" class="text-muted d-none">...</span></label>
+                          <select id="versionSelect" onchange="onVersionSelectChange()" class="form-select">
+                            <option value="1.20.4">1.20.4</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div class="mb-3">
+                        <label class="form-label" data-i18n="label_custom_version">Custom Version</label>
+                        <input type="text" id="versionCustomInput" class="form-control" placeholder="1.20.4" onchange="onCustomVersionInputChange()">
+                      </div>
+
+                      <div id="downloadProgressBarContainer" class="d-none mb-3">
+                        <div class="progress mb-1" style="height: 8px;">
+                          <div id="downloadProgressBar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+                        </div>
+                        <small id="downloadStatusText" class="text-muted">Downloading...</small>
+                      </div>
+
+                      <div class="d-flex flex-wrap gap-2">
+                        <button id="btnDownloadJar" onclick="downloadServerJar()" class="btn btn-primary flex-grow-1">
+                          <i class="bx bx-download me-1"></i> <span data-i18n="btn_download_core">Download Core</span>
+                        </button>
+                        <label class="btn btn-outline-primary mb-0">
+                          <span data-i18n="btn_custom_jar">Custom .jar</span>
+                          <input type="file" id="customJarInput" accept=".jar" onchange="uploadCustomJar(this)" class="d-none">
+                        </label>
+                        <button id="btnDeleteCore" onclick="deleteServerCore()" class="btn btn-outline-danger" title="Delete installed server core &amp; libraries">
+                          <i class="bx bx-trash me-1"></i> <span data-i18n="btn_delete_core">Delete Core</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="card h-100">
+                    <div class="card-header">
+                      <h5 class="mb-0" data-i18n="limits_card_title">Resource Limits</h5>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                          <label class="form-label" data-i18n="label_min_ram">Min RAM (-Xms)</label>
+                          <span class="fw-bold" id="minRamBadge">2 GB</span>
+                        </div>
+                        <input type="range" class="form-range" id="minRamSlider" min="1" max="32" step="1" value="2" oninput="updateMinRam(this.value)">
+                      </div>
+                      <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                          <label class="form-label" data-i18n="label_max_ram">Max RAM (-Xmx)</label>
+                          <span class="fw-bold" id="maxRamBadge">4 GB</span>
+                        </div>
+                        <input type="range" class="form-range" id="maxRamSlider" min="1" max="32" step="1" value="4" oninput="updateMaxRam(this.value)">
+                      </div>
+                      <div class="mb-4">
+                        <div class="d-flex justify-content-between">
+                          <label class="form-label"><span data-i18n="label_cpu_threads">CPU Threads</span> (<span id="sysCoresIndicator">8 max</span>)</label>
+                          <span class="fw-bold" id="cpuCoresBadge">4 threads</span>
+                        </div>
+                        <input type="range" class="form-range" id="cpuCoresSlider" min="1" max="16" step="1" value="4" oninput="updateCpuCores(this.value)">
+                      </div>
+                      <div>
+                        <div class="d-flex justify-content-between">
+                          <label class="form-label" data-i18n="label_view_distance">View Distance (view-distance)</label>
+                          <span class="fw-bold" id="viewDistBadge">10 chunks</span>
+                        </div>
+                        <input type="range" class="form-range" id="viewDistanceSlider" min="2" max="32" step="1" value="10" oninput="updateViewDistance(this.value)">
+                      </div>
+
+                      <div class="mt-4 pt-3 border-top">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                          <label class="form-label mb-0 fw-semibold" for="autosaveIntervalSelect">
+                            <i class="bx bx-save text-primary me-1"></i><span data-i18n="label_autosave">World Autosave</span>
+                          </label>
+                          <span class="badge bg-label-info" id="autosaveBadge">EVERY 15 MIN</span>
+                        </div>
+                        <select id="autosaveIntervalSelect" class="form-select form-select-sm mt-1" onchange="onAutosaveIntervalChange(this.value)">
+                          <option value="0" data-i18n="autosave_off">Disabled (0 sec)</option>
+                          <option value="300" data-i18n="autosave_5m">Every 5 minutes (300 sec)</option>
+                          <option value="600" data-i18n="autosave_10m">Every 10 minutes (600 sec)</option>
+                          <option value="900" selected data-i18n="autosave_15m">Every 15 minutes (900 sec, default)</option>
+                          <option value="1200" data-i18n="autosave_20m">Every 20 minutes (1200 sec)</option>
+                          <option value="1800" data-i18n="autosave_30m">Every 30 minutes (1800 sec)</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Addons -->
+              <div class="row mb-4" id="block-addons">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+                      <div>
+                        <h5 class="mb-0" id="addonsCardTitle">Plugins</h5>
+                        <small class="text-muted" id="addonsCardSubtitle">Directory: <code class="font-mono">plugins/</code></small>
+                      </div>
+                      <div>
+                        <label class="btn btn-sm btn-primary mb-0 me-2">
+                          <span data-i18n="btn_upload_jar">+ Upload .jar</span>
+                          <input type="file" id="fileUploadInput" multiple accept=".jar" onchange="handleFileSelect(this)" class="d-none">
+                        </label>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="loadAddonsList()" data-i18n="btn_refresh">Refresh</button>
+                      </div>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div id="dropZone" class="dropzone mb-3" ondragover="onDragOver(event)" ondragleave="onDragLeave(event)" ondrop="onFileDrop(event)" data-i18n="dropzone_addons">
+                        Drag &amp; drop .jar files here
+                      </div>
+                      <div class="table-responsive text-nowrap" style="max-height: 300px;">
+                        <table class="table table-hover">
+                          <thead>
+                            <tr>
+                              <th data-i18n="th_name">Name</th>
+                              <th data-i18n="th_size">Size</th>
+                              <th data-i18n="th_status">Status</th>
+                              <th data-i18n="th_actions">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody class="table-border-bottom-0" id="addonsList">
+                            <tr><td colspan="4" class="text-center text-muted py-4">Folder plugins is currently empty</td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- World Management -->
+              <div class="row mb-4" id="block-world" style="display: none;">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                      <h5 class="mb-0" data-i18n="world_card_title">World Management</h5>
+                    </div>
+                    <div class="card-body pt-3">
+                      <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 border p-3 rounded mb-4">
+                        <div>
+                          <h6 class="mb-1" data-i18n="world_delete_heading">Delete Current World</h6>
+                          <small class="text-muted"><span data-i18n="world_delete_desc">Completely wipe the</span> <code>world/</code> <span data-i18n="world_delete_desc_2">directory.</span></small>
+                        </div>
+                        <button class="btn btn-danger" onclick="deleteWorld()" data-i18n="btn_delete_world">Delete World</button>
+                      </div>
+
+                      <div class="border p-3 rounded">
+                        <h6 class="mb-2" data-i18n="world_upload_heading">Upload World from ZIP</h6>
+                        <small class="text-muted d-block mb-3" data-i18n="world_upload_desc">Supports .zip archives containing a world folder (with level.dat). The existing world will be replaced.</small>
+                        <div id="worldDropZone" class="dropzone mb-3" ondragover="onWorldDragOver(event)" ondragleave="onWorldDragLeave(event)" ondrop="onWorldDrop(event)">
+                          <span data-i18n="dropzone_world">Drag &amp; drop a .zip archive here or select a file</span>
+                          <input type="file" id="worldUploadInput" accept=".zip" class="d-none" onchange="handleWorldFileSelect(this)">
+                        </div>
+                        <div class="text-center">
+                          <button class="btn btn-primary" onclick="document.getElementById('worldUploadInput').click()" data-i18n="btn_select_zip">Select .zip File</button>
+                        </div>
+
+                        <div id="worldUploadProgressContainer" class="d-none mt-3">
+                          <div class="progress mb-1" style="height: 8px;">
+                            <div id="worldUploadProgressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%;"></div>
+                          </div>
+                          <small id="worldUploadStatusText" class="text-muted">Uploading...</small>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Players Management Section -->
+              <div class="row mb-4" id="block-players" style="display: none;">
+                <!-- Teleportation & Quick Overview Card -->
+                <div class="col-12 mb-4">
+                  <div class="card">
+                    <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-label-primary p-2 rounded">
+                          <i class="bx bx-group fs-4"></i>
+                        </span>
+                        <div>
+                          <h5 class="mb-0" data-i18n="players_card_title">Player Management</h5>
+                          <small class="text-muted" data-i18n="players_card_subtitle">Health, inventory inspector, gamemode switcher &amp; teleportation (Ely.by + Mojang skins)</small>
+                        </div>
+                      </div>
+                      <div class="d-flex align-items-center flex-wrap gap-2">
+                        <span class="badge bg-label-success" id="playersOnlineCountBadge">Online: 0</span>
+                        <span class="badge bg-label-secondary" id="playersTotalCountBadge">Total known: 0</span>
+                        <button class="btn btn-sm btn-outline-primary" onclick="loadPlayers(true)">
+                          <i class="bx bx-refresh me-1"></i><span data-i18n="btn_refresh">Refresh</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="card-body border-top pt-3">
+                      <div class="row g-3 align-items-end">
+                        <div class="col-12 col-md-5">
+                          <label class="form-label fw-semibold mb-1">
+                            <i class="bx bx-user-pin text-primary me-1"></i><span data-i18n="tp_source_label">Teleport Player (Source)</span>
+                          </label>
+                          <select id="tpSourceSelect" class="form-select">
+                            <option value="">— Select player —</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-md-5">
+                          <label class="form-label fw-semibold mb-1">
+                            <i class="bx bx-map-pin text-success me-1"></i><span data-i18n="tp_target_label">Destination Player (Target)</span>
+                          </label>
+                          <select id="tpTargetSelect" class="form-select">
+                            <option value="">— Select target —</option>
+                          </select>
+                        </div>
+                        <div class="col-12 col-md-2 d-grid">
+                          <button class="btn btn-primary" onclick="teleportSelectedPlayers()">
+                            <i class="bx bx-send me-1"></i><span data-i18n="btn_teleport">Teleport</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Online Players Grid -->
+                <div class="col-12 mb-4">
+                  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                    <h6 class="mb-0 fw-bold text-uppercase text-muted small d-flex align-items-center">
+                      <span class="badge badge-center rounded-pill bg-success w-px-10 h-px-10 me-2 mc-status-dot"></span>
+                      <span data-i18n="players_online_heading">Online Players</span>
+                    </h6>
+                    <small class="text-muted" id="playersOnlineHint" data-i18n="players_online_hint">Live server memory &amp; NBT data</small>
+                  </div>
+                  <div class="row g-3" id="onlinePlayersGrid">
+                    <div class="col-12">
+                      <div class="card">
+                        <div class="card-body text-center py-5 text-muted">
+                          <i class="bx bx-user-x fs-1 mb-2 d-block"></i>
+                          <span data-i18n="players_none_online">No players currently online</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Offline / Known Players Grid -->
+                <div class="col-12">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="mb-0 fw-bold text-uppercase text-muted small d-flex align-items-center">
+                      <span class="badge badge-center rounded-pill bg-secondary w-px-10 h-px-10 me-2 mc-status-dot"></span>
+                      <span data-i18n="players_offline_heading">Known Players (Offline / World History)</span>
+                    </h6>
+                  </div>
+                  <div class="row g-3" id="offlinePlayersGrid">
+                    <div class="col-12">
+                      <div class="card">
+                        <div class="card-body text-center py-4 text-muted" data-i18n="players_none_offline">
+                          No known offline players in world database
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- JVM Launch Command (Terminal Dev-Tool Style) -->
+              <div class="row mb-4">
+                <div class="col-12">
+                  <div class="card">
+                    <div class="card-body py-3 px-4">
+                      <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                        <div class="d-flex align-items-center flex-wrap gap-2">
+                          <i class="bx bx-terminal text-primary fs-5"></i>
+                          <h6 class="mb-0 fw-semibold" data-i18n="jvm_title">JVM Launch Command</h6>
+                          <span id="javaStatusChip" class="badge bg-label-secondary rounded-pill px-2 py-1" style="font-size: 0.75rem;">
+                            Checking Java...
+                          </span>
+                        </div>
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                          <div class="input-group input-group-sm input-group-merge" style="width: 165px;">
+                            <span class="input-group-text px-2" title="Java executable path">
+                              <i class="bx bx-code-alt"></i>
+                            </span>
+                            <input type="text" id="javaPathInput" class="form-control form-control-sm font-mono" placeholder="java" onchange="onConfigInputChange()">
+                          </div>
+                          <button class="btn btn-sm btn-outline-primary text-nowrap" onclick="checkJavaEnvironment()">
+                            <i class="bx bx-check-shield me-1"></i><span data-i18n="btn_verify_java">Verify</span>
+                          </button>
+                          <button id="btnCopyJvmCmd" class="btn btn-sm btn-outline-secondary text-nowrap d-inline-flex align-items-center" onclick="copyCommandPreview()">
+                            <i class="bx bx-copy me-1" id="btnCopyJvmIcon"></i>
+                            <span id="btnCopyJvmText" data-i18n="btn_copy_cmd">Copy Command</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- Terminal Command Container -->
+                      <div class="jvm-terminal-box" id="cmdPreviewBox">
+                        <span class="jvm-token-prompt">$</span><span id="cmdPreviewText">java -Xms2G -Xmx4G ...</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <!-- / Content -->
+
+            <div class="content-backdrop fade"></div>
+          </div>
+          <!-- Content wrapper -->
+        </div>
+        <!-- / Layout page -->
+      </div>
+
+      <!-- Overlay -->
+      <div class="layout-overlay layout-menu-toggle"></div>
+    </div>
+    <!-- / Layout wrapper -->
+
+    <!-- Properties Modal -->
+    <div class="modal fade" id="propertiesModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" data-i18n="props_modal_title">server.properties Settings</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_port">Port</label>
+                <input type="number" id="propPort" class="form-control">
+              </div>
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_view_dist">View Distance</label>
+                <input type="number" id="propViewDistance" class="form-control">
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_auth">Authentication (online-mode)</label>
+                <select id="propOnlineMode" class="form-select">
+                  <option value="false">Offline (Cracked / Ely.by)</option>
+                  <option value="true">Online (Mojang)</option>
+                </select>
+              </div>
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_difficulty">Difficulty</label>
+                <select id="propDifficulty" class="form-select">
+                  <option value="peaceful">Peaceful</option>
+                  <option value="easy">Easy</option>
+                  <option value="normal">Normal</option>
+                  <option value="hard">Hard</option>
+                </select>
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_gamemode">Default Gamemode</label>
+                <select id="propGamemode" class="form-select">
+                  <option value="survival">Survival</option>
+                  <option value="creative">Creative</option>
+                  <option value="adventure">Adventure</option>
+                  <option value="spectator">Spectator</option>
+                </select>
+              </div>
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_max_players">Max Players</label>
+                <input type="number" id="propMaxPlayers" class="form-control">
+              </div>
+            </div>
+            <div class="row g-2">
+              <div class="col mb-3">
+                <label class="form-label">PvP</label>
+                <select id="propPvp" class="form-select">
+                  <option value="true" data-i18n="props_enabled">Enabled</option>
+                  <option value="false" data-i18n="props_disabled">Disabled</option>
+                </select>
+              </div>
+              <div class="col mb-3">
+                <label class="form-label" data-i18n="props_flight">Allow Flight (allow-flight)</label>
+                <select id="propAllowFlight" class="form-select">
+                  <option value="true" data-i18n="props_flight_true">Allowed (True - for mods)</option>
+                  <option value="false" data-i18n="props_flight_false">Disallowed (False)</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-0">
+              <label class="form-label">MOTD</label>
+              <input type="text" id="propMotd" class="form-control">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="btn_cancel">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveProperties()" data-i18n="btn_save">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player Inspection Modal -->
+    <div class="modal fade" id="playerInspectModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-xl modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header border-bottom pb-3">
+            <div class="d-flex align-items-center gap-3">
+              <img id="inspectPlayerAvatar" src="" alt="Avatar" class="mc-avatar rounded border" width="52" height="52">
+              <div>
+                <div class="d-flex align-items-center gap-2">
+                  <h5 class="modal-title mb-0 fw-bold" id="inspectPlayerName">Player</h5>
+                  <span id="inspectPlayerStatusBadge" class="badge bg-label-success">ONLINE</span>
+                  <span id="inspectPlayerGmBadge" class="badge bg-label-primary">Survival</span>
+                </div>
+                <small class="text-muted font-mono d-block" id="inspectPlayerUuid">UUID: —</small>
+                <small class="text-muted d-block" id="inspectPlayerCoords">Coordinates: —</small>
+              </div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+
+          <div class="modal-body">
+            <!-- Vitals: Health, Food, XP -->
+            <div class="row g-3 mb-4">
+              <div class="col-12 col-md-5">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-semibold small"><i class="bx bxs-heart text-danger me-1"></i><span data-i18n="inspect_health">Health</span></span>
+                    <span class="badge bg-label-danger" id="inspectHealthText">20 / 20 HP</span>
+                  </div>
+                  <div class="progress" style="height: 10px;">
+                    <div id="inspectHealthBar" class="progress-bar bg-danger" role="progressbar" style="width: 100%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-5">
+                <div class="border rounded p-3 h-100">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-semibold small"><i class="bx bxs-baguette text-warning me-1"></i><span data-i18n="inspect_food">Hunger (Food)</span></span>
+                    <span class="badge bg-label-warning" id="inspectFoodText">20 / 20</span>
+                  </div>
+                  <div class="progress" style="height: 10px;">
+                    <div id="inspectFoodBar" class="progress-bar bg-warning" role="progressbar" style="width: 100%;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-md-2">
+                <div class="border rounded p-3 h-100 text-center d-flex flex-column justify-content-center">
+                  <small class="text-muted d-block" data-i18n="inspect_xp">Experience (XP)</small>
+                  <h5 class="mb-0 text-success fw-bold" id="inspectXpLevel">0 lvl</h5>
+                  <small class="text-muted" style="font-size: 11px;" id="inspectXpTotal">0% to next</small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Actions inside Modal -->
+            <div class="border rounded p-3 mb-4">
+              <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <div>
+                  <span class="small fw-semibold text-muted d-block mb-1" data-i18n="inspect_gm_label">Switch Gamemode (1-Click):</span>
+                  <div class="btn-group btn-group-sm flex-wrap" role="group">
+                    <button type="button" class="btn btn-outline-primary" id="btnGmSurvival" onclick="setInspectPlayerGamemode('survival')" data-i18n="gm_survival">Survival</button>
+                    <button type="button" class="btn btn-outline-info" id="btnGmCreative" onclick="setInspectPlayerGamemode('creative')" data-i18n="gm_creative">Creative</button>
+                    <button type="button" class="btn btn-outline-warning" id="btnGmAdventure" onclick="setInspectPlayerGamemode('adventure')" data-i18n="gm_adventure">Adventure</button>
+                    <button type="button" class="btn btn-outline-secondary" id="btnGmSpectator" onclick="setInspectPlayerGamemode('spectator')" data-i18n="gm_spectator">Spectator</button>
+                  </div>
+                </div>
+                <div class="d-flex gap-2 align-items-end">
+                  <button type="button" class="btn btn-sm btn-outline-success" onclick="healInspectPlayer()">
+                    <i class="bx bx-plus-medical me-1"></i><span data-i18n="btn_heal">Heal</span>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-danger" onclick="kickInspectPlayer()">
+                    <i class="bx bx-log-out-circle me-1"></i><span data-i18n="btn_kick">Kick</span>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-secondary" onclick="refreshInspectPlayer()">
+                    <i class="bx bx-refresh"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Visual Inventory Grid -->
+            <div class="mc-inventory-wrapper">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <h6 class="mb-0 fw-bold d-flex align-items-center gap-2">
+                  <i class="bx bx-grid-alt text-primary"></i><span data-i18n="inspect_inv_title">Inventory</span>
+                </h6>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge bg-label-secondary" id="inspectInvCountLabel">Slots used: 0</span>
+                </div>
+              </div>
+
+              <!-- Authentic Minecraft Inventory GUI Panel -->
+              <div class="mc-inventory-scroll">
+                <div class="mc-inventory-panel">
+                  <!-- Left: 4 Armor Slots (Helmet, Chestplate, Leggings, Boots) -->
+                  <div class="mc-armor-column" id="inspectArmorGrid"></div>
+
+                  <!-- Middle: Ender Chest (Top) & Offhand (Bottom) -->
+                  <div class="mc-middle-column">
+                    <div id="inspectEnderChestSlot" class="mc-slot-wrap"></div>
+                    <div id="inspectOffhandSlot" class="mc-slot-wrap"></div>
+                  </div>
+
+                  <!-- Right: Main Inventory (9x3) + Hotbar (9x1) -->
+                  <div class="mc-inv-column">
+                    <div class="mc-grid-main" id="inspectMainInvGrid"></div>
+                    <div class="mc-inv-gap"></div>
+                    <div class="mc-grid-hotbar" id="inspectHotbarGrid"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ender Chest Expanded Drawer (collapsible) -->
+              <div id="inspectEnderChestPanel" class="mt-3" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                  <span class="small fw-bold text-info d-flex align-items-center gap-1">
+                    <img src="/static/icons/ender_chest.png" width="16" height="16" style="image-rendering: pixelated;" alt="">
+                    <span data-i18n="inspect_ender_title">Ender Chest Contents (27 slots)</span>
+                  </span>
+                  <button type="button" class="btn btn-xs btn-outline-secondary" onclick="toggleEnderChestView()">
+                    <i class="bx bx-x me-1"></i><span data-i18n="btn_hide">Hide</span>
+                  </button>
+                </div>
+                <div class="mc-inventory-scroll">
+                  <div class="mc-inventory-panel" style="width: fit-content; margin: 0 auto; justify-content: center; min-width: auto;">
+                    <div class="mc-grid-main" id="inspectEnderGrid"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Detailed Slot Info Card -->
+              <div id="inspectSelectedSlotInfo" class="mc-slot-detail-card mt-3">
+                <div class="d-flex align-items-center gap-2 text-muted small">
+                  <i class="bx bx-info-circle fs-5"></i>
+                  <span data-i18n="inspect_slot_hint">Hover or click any slot to inspect item details.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="btn_close">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Confirm Delete World Modal -->
+    <div class="modal fade" id="confirmDeleteWorldModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-danger">
+          <div class="modal-header bg-label-danger">
+            <h5 class="modal-title d-flex align-items-center gap-2 text-danger">
+              <i class="bx bx-error-circle fs-4"></i>
+              <span data-i18n="del_world_modal_title">Confirm World Deletion</span>
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="text-center my-3">
+              <div class="avatar avatar-xl mx-auto mb-3 bg-label-danger rounded-circle p-2 d-flex align-items-center justify-content-center">
+                <i class="bx bx-trash fs-1 text-danger"></i>
+              </div>
+              <h5 class="fw-bold text-danger mb-2" data-i18n="del_world_modal_q">Are you sure you want to delete the world?</h5>
+              <p class="text-muted mb-0" data-i18n-html="del_world_modal_body">
+                This action is <strong>irreversible</strong>. All regions, player builds, entities, and inventory files inside <code class="text-danger">world/</code> will be permanently erased.
+              </p>
+            </div>
+            <div class="alert alert-warning d-flex align-items-center gap-2 mb-0" role="alert">
+              <i class="bx bx-info-circle flex-shrink-0"></i>
+              <small data-i18n="del_world_modal_warn">If you want to keep your builds, make a backup before confirming.</small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal" data-i18n="btn_cancel">
+              Cancel
+            </button>
+            <button type="button" class="btn btn-danger" id="btnConfirmDeleteWorld" onclick="executeDeleteWorld()">
+              <i class="bx bx-trash me-1"></i><span data-i18n="btn_confirm_delete_world">Yes, delete world forever</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer" style="z-index: 1090"></div>
+
+    <!-- Core JS -->
+    <script src="assets/vendor/libs/jquery/jquery.js"></script>
+    <script src="assets/vendor/libs/popper/popper.js"></script>
+    <script src="assets/vendor/js/bootstrap.js"></script>
+    <script src="assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+    <script src="assets/vendor/js/menu.js"></script>
+    <!-- Main JS -->
+    <script src="assets/js/main.js"></script>
+    <!-- Minecraft Authentic Theme & Particle FX Engine -->
+    <script src="assets/js/minecraft-theme.js"></script>
+    <!-- Application Logic -->
+    <script src="static/app_logic.js?v=20261018_mss"></script>
+  </body>
+</html>

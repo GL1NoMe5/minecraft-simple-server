@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Caches and temporary files
+.pytest_cache/
+.coverage
+htmlcov/
+*.tmp
+*.bak
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# IDE / Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Project backups (local safety archives)
+backups/
+
+# Cache directory (runtime player avatar cache)
+cache/*
+!cache/.gitkeep
+cache/avatars/*
+!cache/avatars/.gitkeep
+
+# Minecraft server runtime logs and crash reports
+server_data/logs/*
+!server_data/logs/.gitkeep
+server_data/crash-reports/
+*.log
+*.log.gz
+server_data/installer.log
+
+# Minecraft server heavy runtime files (world saves, downloaded libraries, jars)
+server_data/world/
+server_data/world_nether/
+server_data/world_the_end/
+server_data/libraries/
+server_data/*.jar
+server_data/run.bat
+server_data/run.sh
+server_data/user_jvm_args.txt
+!server_data/mods/.gitkeep
+!server_data/plugins/.gitkeep
+!server_data/defaultconfigs/.gitkeep

@@ -1,0 +1,23 @@
+{
+  "engine": "NeoForge",
+  "version": "1.21.1",
+  "min_ram": 8,
+  "max_ram": 16,
+  "cpu_cores": 8,
+  "view_distance": 16,
+  "preset": "extreme_server",
+  "java_path": "java",
+  "server_jar": "server.jar",
+  "auto_eula": true,
+  "custom_flags": "-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=100 -XX:+AlwaysPreTouch",
+  "server_port": 25565,
+  "motd": "A Minecraft Server managed by Local MC",
+  "online_mode": false,
+  "difficulty": "normal",
+  "gamemode": "survival",
+  "max_players": 20,
+  "pvp": true,
+  "allow_flight": true,
+  "autosave_interval_seconds": 900,
+  "autosave_interval_minutes": 15
+}
