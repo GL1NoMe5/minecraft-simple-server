@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
 
 <img src="app/static/icons/grass_block_side.png" width="40" /><img src="app/static/icons/oak_log.png" width="40" /><img src="app/static/icons/diamond_block.png" width="40" /><img src="app/static/icons/gold_block.png" width="40" /><img src="app/static/icons/emerald_block.png" width="40" /><img src="app/static/icons/amethyst_block.png" width="40" /><img src="app/static/icons/tnt_side.png" width="40" />
 
@@ -176,6 +176,29 @@ MSS enables <code>allow-flight</code> by default, so jetpacks, rings and grappli
 <br/>
 Sure — hit the <b>EN / RU</b> button in the top bar.
 </details>
+
+<br/>
+
+<div align="center">
+
+<table>
+<tr>
+<td><img src="app/static/icons/diamond_pickaxe.png" width="36" /></td>
+<td><img src="app/static/icons/golden_apple.png" width="36" /></td>
+<td><img src="app/static/icons/ender_eye.png" width="36" /></td>
+<td><img src="app/static/icons/enchanted_book.png" width="36" /></td>
+<td><img src="app/static/icons/emerald.png" width="36" /></td>
+<td><img src="app/static/icons/redstone.png" width="36" /></td>
+<td><img src="app/static/icons/experience_bottle.png" width="36" /></td>
+<td><img src="app/static/icons/nether_star.png" width="36" /></td>
+<td><img src="app/static/icons/totem_of_undying.png" width="36" /></td>
+</tr>
+</table>
+
+<i>“The best adventures start with a single block.”</i><br/>
+<sub>⭐ If MSS made your evening cozier — drop a star on the repo!</sub>
+
+</div>
 
 <br/>
 
