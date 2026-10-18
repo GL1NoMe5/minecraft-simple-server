@@ -1,5 +1,6 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0"
 title Minecraft Simple Server (MSS) - Automated Installer
 
 echo ===============================================================================
@@ -9,8 +10,18 @@ echo.
 
 :: 1. Check Python
 echo [1/4] Checking Python environment...
+set "PY_CMD="
 where python >nul 2>nul
-if %errorlevel% neq 0 (
+if %errorlevel% equ 0 (
+    set "PY_CMD=python"
+) else (
+    where py >nul 2>nul
+    if %errorlevel% equ 0 (
+        set "PY_CMD=py -3"
+    )
+)
+
+if "%PY_CMD%"=="" (
     echo [ERROR] Python was not found in your system PATH!
     echo.
     echo Please install Python 3.10 or newer from:
@@ -22,7 +33,7 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-for /f "tokens=*" %%i in ('python --version') do set "PY_VER=%%i"
+for /f "tokens=*" %%i in ('%PY_CMD% --version') do set "PY_VER=%%i"
 echo       Detected: %PY_VER%
 
 :: 2. Check Java
@@ -50,7 +61,7 @@ echo.
 echo [3/4] Preparing Python virtual environment (venv)...
 if not exist "venv\Scripts\python.exe" (
     echo       Creating isolated virtual environment in .\venv ...
-    python -m venv venv
+    %PY_CMD% -m venv venv
     if %errorlevel% neq 0 (
         echo [ERROR] Failed to create virtual environment!
         pause

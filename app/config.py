@@ -1,11 +1,16 @@
 import json
 import os
+import sys
 import psutil
 from pathlib import Path
 from pydantic import BaseModel, Field
 from typing import Optional
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+if getattr(sys, "frozen", False):
+    BASE_DIR = Path(sys.executable).resolve().parent
+else:
+    BASE_DIR = Path(__file__).resolve().parent.parent
+
 SERVER_DIR = BASE_DIR / "server_data"
 CONFIG_FILE = BASE_DIR / "server_config.json"
 

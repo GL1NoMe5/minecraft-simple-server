@@ -1,6 +1,7 @@
 import sys
 import webbrowser
 import uvicorn
+from app.main import app
 
 if __name__ == "__main__":
     host = "127.0.0.1"
@@ -17,4 +18,4 @@ if __name__ == "__main__":
     except Exception:
         pass
 
-    uvicorn.run("app.main:app", host=host, port=port, reload=False, log_level="info")
+    uvicorn.run(app, host=host, port=port, reload=False, log_level="info")

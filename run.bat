@@ -1,12 +1,23 @@
 @echo off
 chcp 65001 > nul
+cd /d "%~dp0"
 title MSS (Minecraft Simple Server)
 
 :: Check if virtual environment exists
 if exist "venv\Scripts\python.exe" (
     set "PYTHON_EXE=venv\Scripts\python.exe"
 ) else (
-    set "PYTHON_EXE=python"
+    where python >nul 2>nul
+    if %errorlevel% equ 0 (
+        set "PYTHON_EXE=python"
+    ) else (
+        where py >nul 2>nul
+        if %errorlevel% equ 0 (
+            set "PYTHON_EXE=py -3"
+        ) else (
+            set "PYTHON_EXE=python"
+        )
+    )
 )
 
 :: Validate Python dependencies

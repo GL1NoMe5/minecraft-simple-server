@@ -2,6 +2,7 @@ import asyncio
 import mimetypes
 import os
 import shutil
+import sys
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, List, Optional, Union
@@ -45,7 +46,10 @@ async def add_no_cache_headers(request: Request, call_next):
         response.headers["Expires"] = "0"
     return response
 
-STATIC_DIR = Path(__file__).parent / "static"
+if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+    STATIC_DIR = Path(sys._MEIPASS) / "app" / "static"
+else:
+    STATIC_DIR = Path(__file__).parent / "static"
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 class CommandRequest(BaseModel):
