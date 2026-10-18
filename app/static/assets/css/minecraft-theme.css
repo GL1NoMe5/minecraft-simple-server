@@ -935,3 +935,69 @@ html.dark-style,
     transition: none !important;
   }
 }
+
+/* ---------- Minecraft Inventory & Container GUI (Light & Dark) ---------- */
+.mc-theme .mc-inventory-panel,
+.mc-theme .mc-container-grid,
+.mc-theme .mc-inventory-board {
+  background-color: #c6c6c6;
+  border-top: 2px solid #ffffff;
+  border-left: 2px solid #ffffff;
+  border-right: 2px solid #555555;
+  border-bottom: 2px solid #555555;
+  outline: 2px solid #000000;
+}
+
+html.dark-style .mc-inventory-panel,
+html.dark-style .mc-container-grid,
+html.dark-style .mc-inventory-board,
+.mc-theme.dark-style .mc-inventory-panel,
+.mc-theme.dark-style .mc-container-grid,
+.mc-theme.dark-style .mc-inventory-board,
+.dark-style .mc-inventory-panel,
+.dark-style .mc-container-grid,
+.dark-style .mc-inventory-board {
+  background-color: #23242b !important;
+  border-top: 2px solid #4a4b57 !important;
+  border-left: 2px solid #4a4b57 !important;
+  border-right: 2px solid #141418 !important;
+  border-bottom: 2px solid #141418 !important;
+  outline: 2px solid #000000 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65) !important;
+}
+
+html.dark-style .mc-slot,
+.mc-theme.dark-style .mc-slot,
+.dark-style .mc-slot {
+  background-color: #17181c !important;
+  border-top: 2px solid #0e0e11 !important;
+  border-left: 2px solid #0e0e11 !important;
+  border-right: 2px solid #363742 !important;
+  border-bottom: 2px solid #363742 !important;
+}
+
+html.dark-style .mc-slot.empty,
+.mc-theme.dark-style .mc-slot.empty,
+.dark-style .mc-slot.empty {
+  background-color: #17181c !important;
+}
+
+html.dark-style .mc-slot:hover,
+.mc-theme.dark-style .mc-slot:hover,
+.dark-style .mc-slot:hover {
+  box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.16) !important;
+}
+
+html.dark-style .mc-slot.active-selected,
+.mc-theme.dark-style .mc-slot.active-selected,
+.dark-style .mc-slot.active-selected {
+  outline: 2px solid #55e3f0 !important;
+  outline-offset: -2px !important;
+  box-shadow: inset 0 0 0 9999px rgba(85, 227, 240, 0.22) !important;
+}
+
+html.dark-style .mc-slot-count,
+.mc-theme.dark-style .mc-slot-count,
+.dark-style .mc-slot-count {
+  text-shadow: 2px 2px 0px #000000 !important;
+}

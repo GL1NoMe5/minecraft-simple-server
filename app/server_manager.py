@@ -531,7 +531,7 @@ class ServerManager:
                         proc.stdin.write("save-all\n")
                         proc.stdin.flush()
                         time_str = datetime.now().strftime('%H:%M:%S')
-                        say_cmd = f"say §a[Сервер] Мир успешно сохранен! Время: {time_str}\n"
+                        say_cmd = f"say §a[Server] World saved! Time: {time_str}\n"
                         proc.stdin.write(say_cmd)
                         proc.stdin.flush()
                         self._sync_broadcast(f"[AutoSave] Автоматическое сохранение мира выполнено ({time_str})")
@@ -758,7 +758,7 @@ class ServerManager:
                     self.process.stdin.flush()
                     if clean_cmd.lower() == "save-all":
                         time_str = datetime.now().strftime('%H:%M:%S')
-                        self.process.stdin.write(f"say §a[Сервер] Мир успешно сохранен! Время: {time_str}\n")
+                        self.process.stdin.write(f"say §a[Server] World saved! Time: {time_str}\n")
                         self.process.stdin.flush()
                         self._sync_broadcast(f"[AutoSave] Сохранение мира выполнено ({time_str})")
                     self._sync_broadcast(f"> {clean_cmd}")

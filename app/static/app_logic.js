@@ -692,33 +692,126 @@ function t(key, vars = {}) {
 
 function translateServerMessage(msg) {
   if (!msg || currentLang === 'ru') return msg;
-  const s = String(msg);
-  if (s === 'нет ядра') return 'no core';
-  if (s === 'Процесс сервера запущен') return 'Server process started';
-  if (s === 'Отправлена команда остановки') return 'Stop command sent';
-  if (s === 'Сервер уже остановлен') return 'Server is already stopped';
-  if (s === 'Сервер уже запущен') return 'Server is already running';
-  if (s === 'Процесс принудительно завершен') return 'Process forcefully terminated';
-  if (s === 'Запущена перезагрузка') return 'Restart initiated';
-  if (s === 'Загрузка запущена в фоновом режиме') return 'Download started in background';
-  if (s === 'Загрузка уже выполняется') return 'Download is already in progress';
-  if (s === 'Команда отправлена') return 'Command sent';
-  if (s === 'Сервер не запущен') return 'Server is not running';
-  if (s === 'Мир успешно удален') return 'World deleted successfully';
-  if (s === 'Папка мира еще не создана') return 'World folder does not exist yet';
-  if (s === 'Мир успешно загружен и распакован') return 'World uploaded and extracted successfully';
-  if (s === 'Нельзя удалить ядро при запущенном сервере') return 'Cannot delete core while server is running';
+  const s = String(msg).trim();
+  if (!s) return msg;
+
+  const EXACT_MAP = {
+    'Сервер успешно запущен': 'Server successfully started',
+    'Процесс сервера запущен': 'Server process started',
+    'Сервер уже запущен': 'Server is already running',
+    'Сервер уже остановлен': 'Server is already stopped',
+    'Сервер не запущен': 'Server is not running',
+    'Сервер должен быть запущен': 'Server must be running',
+    'Сервер должен быть запущен для выполнения этого действия': 'Server must be running to perform this action',
+    'Отправлена команда остановки': 'Stop command sent',
+    'Команда остановки отправлена': 'Stop command sent',
+    'Сервер принудительно остановлен': 'Server forcefully stopped',
+    'Процесс принудительно завершен': 'Process forcefully terminated',
+    'Процесс убит': 'Process killed',
+    'Запущена перезагрузка': 'Restart initiated',
+    'Перезапуск инициирован': 'Restart initiated',
+    'Сервер Minecraft штатно остановлен': 'Minecraft server stopped gracefully',
+    'Команда отправлена': 'Command sent',
+    'Поток stdin недоступен': 'stdin stream is unavailable',
+    'Сначала остановите сервер перед удалением ядра': 'Stop the server before deleting the core',
+    'Нельзя удалить ядро при запущенном сервере': 'Cannot delete core while server is running',
+    'нет ядра': 'no core',
+    'Некорректное имя игрока': 'Invalid player name',
+    'Некорректное имя целевого игрока для телепортации': 'Invalid target player name for teleportation',
+    'Файл не найден': 'File not found',
+    'Файл не найден или ошибка доступа': 'File not found or access error',
+    'Файл удален': 'File deleted',
+    'Загрузка уже выполняется': 'Download is already in progress',
+    'Загрузка запущена в фоновом режиме': 'Download started in background',
+    'Мир успешно удален': 'World deleted successfully',
+    'Папка мира не существует': 'World folder does not exist',
+    'Папка мира еще не создана': 'World folder does not exist yet',
+    'Мир успешно загружен и установлен': 'World uploaded and installed successfully',
+    'Мир успешно загружен и распакован': 'World uploaded and extracted successfully',
+    'EULA принята': 'EULA accepted',
+    'server.jar успешно загружен': 'server.jar uploaded successfully',
+    'server.jar обновлен': 'server.jar updated',
+    'Конфигурация сохранена': 'Configuration saved',
+    'server.properties сохранен': 'server.properties saved',
+    'Список игроков обновлен': 'Player list refreshed',
+    'Не удалось загрузить список игроков': 'Failed to load players list',
+    'Не удалось обновить интервал': 'Failed to update interval',
+    'Ошибка соединения': 'Connection error',
+    'Не удалось удалить ядро': 'Failed to delete core',
+    'Не удалось выполнить действие': 'Action failed',
+    'Ошибка чтения NBT данных игрока': 'Error reading player NBT data',
+    'Не удалось получить данные игрока': 'Failed to fetch player data',
+    'Выберите файлы .jar': 'Please select .jar files',
+    'Только .zip архивы поддерживаются': 'Only .zip archives are supported',
+    'Только ZIP архивы поддерживаются': 'Only ZIP archives are supported',
+    'Интервал должен быть от 0 до 10800 секунд': 'Interval must be between 0 and 10800 seconds',
+    'В архиве не найден файл level.dat. Это не похоже на сохранение мира Minecraft.': 'level.dat not found in archive. This does not look like a Minecraft world save.',
+    'Выберите обоих игроков для телепортации': 'Select both source and target players',
+    'Остановка...': 'Stopping...',
+    'Перезапуск...': 'Restarting...',
+    'Успех': 'Success',
+    'Ошибка': 'Error',
+    'Внимание': 'Warning',
+    'Уведомление': 'Notice'
+  };
+
+  if (EXACT_MAP[s]) return EXACT_MAP[s];
+
   if (s.includes('Ядро сервера и библиотеки') && s.includes('успешно удалены')) {
     return 'Server core and libraries deleted successfully';
   }
+
+  const mLaunchErr = s.match(/^Ошибка запуска процесса:\s*(.+)$/);
+  if (mLaunchErr) return `Server process startup error: ${mLaunchErr[1]}`;
+
+  const mCmdErr = s.match(/^Ошибка отправки команды:\s*(.+)$/);
+  if (mCmdErr) return `Error sending command: ${mCmdErr[1]}`;
+
+  const mDelCoreErr = s.match(/^Ошибка удаления ядра:\s*(.+)$/);
+  if (mDelCoreErr) return `Error deleting core: ${mDelCoreErr[1]}`;
+
+  const mKillErr = s.match(/^Ошибка принудительной остановки:\s*(.+)$/);
+  if (mKillErr) return `Error forcefully stopping: ${mKillErr[1]}`;
+
+  const mDelWorldErr = s.match(/^Ошибка удаления мира:\s*(.+)$/);
+  if (mDelWorldErr) return `Error deleting world: ${mDelWorldErr[1]}`;
+
+  const mUnpackWorldErr = s.match(/^Ошибка распаковки мира:\s*(.+)$/);
+  if (mUnpackWorldErr) return `Error unpacking world: ${mUnpackWorldErr[1]}`;
+
+  const mExtractErr = s.match(/^Ошибка распаковки архива:\s*(.+)$/);
+  if (mExtractErr) return `Error extracting archive: ${mExtractErr[1]}`;
+
+  const mInterval = s.match(/^Интервал автосохранения установлен на\s*(\d+)\s*сек\.?$/);
+  if (mInterval) return `Autosave interval set to ${mInterval[1]} sec.`;
+
+  const mModeErr = s.match(/^Недопустимый режим игры:\s*(.+)$/);
+  if (mModeErr) return `Invalid game mode: ${mModeErr[1]}`;
+
+  const mActionErr = s.match(/^Неизвестное действие:\s*(.+)$/);
+  if (mActionErr) return `Unknown action: ${mActionErr[1]}`;
+
+  const mFilesUploaded = s.match(/^Загружено файлов:\s*(\d+)$/);
+  if (mFilesUploaded) return `Uploaded files: ${mFilesUploaded[1]}`;
+
+  const mJavaErr = s.match(/^Java не найдена по пути '([^']+)'.*$/);
+  if (mJavaErr) return `Java not found at path '${mJavaErr[1]}'. Install Java (JDK 17/21) or specify the correct path in settings.`;
+
+  const mJarErr = s.match(/^Файл ядра '([^']+)' \(или библиотеки Forge\) не найден.*$/);
+  if (mJarErr) return `Server core file '${mJarErr[1]}' (or Forge libraries) not found in server_data. Download the core via manager or upload .jar manually.`;
+
   const mGm = s.match(/^Режим игрока (.+) изменен на (.+)$/);
   if (mGm) return `Player ${mGm[1]} gamemode changed to ${mGm[2]}`;
+
   const mTp = s.match(/^Игрок (.+) телепортирован к (.+)$/);
   if (mTp) return `Teleported ${mTp[1]} to ${mTp[2]}`;
+
   const mKick = s.match(/^Игрок (.+) кикнут с сервера$/);
   if (mKick) return `Player ${mKick[1]} kicked from server`;
+
   const mHeal = s.match(/^Здоровье и сытость игрока (.+) восстановлены$/);
   if (mHeal) return `Restored health and hunger for ${mHeal[1]}`;
+
   return s;
 }
 
@@ -970,6 +1063,8 @@ function showToast(titleOrMessage, maybeMessage, type = 'info', options = {}) {
   if (title === 'Успех' || title === 'Success') title = t('toast_success');
   if (title === 'Ошибка' || title === 'Error') title = t('toast_error');
   if (title === 'Внимание' || title === 'Warning') title = t('toast_warning');
+  if (title === 'Уведомление' || title === 'Notice') title = t('toast_notice');
+  title = translateServerMessage(title);
   message = translateServerMessage(message);
 
   if (!options.silent) {
@@ -1488,7 +1583,11 @@ async function startServer() {
   try {
     const res = await fetch('/api/server/start', { method: 'POST' });
     const data = await res.json();
-    showToast(data.message || t('status_starting'));
+    if (data.success === false) {
+      showToast(t('toast_error'), data.message || (currentLang === 'ru' ? 'Ошибка запуска сервера' : 'Failed to start server'), 'error');
+    } else {
+      showToast(t('toast_notice'), data.message || t('status_starting'), 'info');
+    }
     pollStatusOnce();
   } catch (e) {}
 }
@@ -1498,7 +1597,11 @@ async function stopServer() {
   try {
     const res = await fetch('/api/server/stop', { method: 'POST' });
     const data = await res.json();
-    showToast(data.message || (currentLang === 'ru' ? 'Остановка...' : 'Stopping...'));
+    if (data.success === false) {
+      showToast(t('toast_error'), data.message || (currentLang === 'ru' ? 'Ошибка остановки сервера' : 'Failed to stop server'), 'error');
+    } else {
+      showToast(t('toast_notice'), data.message || (currentLang === 'ru' ? 'Остановка...' : 'Stopping...'), 'info');
+    }
     pollStatusOnce();
   } catch (e) {}
 }
@@ -1509,7 +1612,11 @@ async function restartServer() {
   try {
     const res = await fetch('/api/server/restart', { method: 'POST' });
     const data = await res.json();
-    showToast(data.message || (currentLang === 'ru' ? 'Перезапуск...' : 'Restarting...'));
+    if (data.success === false) {
+      showToast(t('toast_error'), data.message || (currentLang === 'ru' ? 'Ошибка перезапуска' : 'Restart failed'), 'error');
+    } else {
+      showToast(t('toast_notice'), data.message || (currentLang === 'ru' ? 'Перезапуск...' : 'Restarting...'), 'info');
+    }
     pollStatusOnce();
   } catch (e) {}
 }
@@ -1523,7 +1630,11 @@ async function killServer() {
   try {
     const res = await fetch('/api/server/kill', { method: 'POST' });
     const data = await res.json();
-    showToast(data.message || (currentLang === 'ru' ? 'Процесс убит' : 'Process killed'));
+    if (data.success === false) {
+      showToast(t('toast_error'), data.message || (currentLang === 'ru' ? 'Не удалось остановить процесс' : 'Failed to kill process'), 'error');
+    } else {
+      showToast(t('toast_notice'), data.message || (currentLang === 'ru' ? 'Процесс убит' : 'Process killed'), 'info');
+    }
     pollStatusOnce();
   } catch (e) {}
 }

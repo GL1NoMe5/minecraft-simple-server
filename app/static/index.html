@@ -176,6 +176,47 @@
       .mc-slot.empty {
           background-color: #8b8b8b;
       }
+      /* Dark mode support for Minecraft Inventory container GUI */
+      html.dark-style .mc-inventory-panel,
+      .dark-style .mc-inventory-panel,
+      html.dark-style .mc-container-grid,
+      .dark-style .mc-container-grid,
+      html.dark-style .mc-inventory-board,
+      .dark-style .mc-inventory-board {
+          background-color: #23242b;
+          border-top: 2px solid #4a4b57;
+          border-left: 2px solid #4a4b57;
+          border-right: 2px solid #141418;
+          border-bottom: 2px solid #141418;
+          outline: 2px solid #000000;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.65);
+      }
+      html.dark-style .mc-slot,
+      .dark-style .mc-slot {
+          background-color: #17181c;
+          border-top: 2px solid #0e0e11;
+          border-left: 2px solid #0e0e11;
+          border-right: 2px solid #363742;
+          border-bottom: 2px solid #363742;
+      }
+      html.dark-style .mc-slot.empty,
+      .dark-style .mc-slot.empty {
+          background-color: #17181c;
+      }
+      html.dark-style .mc-slot:hover,
+      .dark-style .mc-slot:hover {
+          box-shadow: inset 0 0 0 9999px rgba(255, 255, 255, 0.16);
+      }
+      html.dark-style .mc-slot.active-selected,
+      .dark-style .mc-slot.active-selected {
+          outline: 2px solid #55e3f0;
+          outline-offset: -2px;
+          box-shadow: inset 0 0 0 9999px rgba(85, 227, 240, 0.22);
+      }
+      html.dark-style .mc-slot-count,
+      .dark-style .mc-slot-count {
+          text-shadow: 2px 2px 0px #000000;
+      }
       /* Modded items: preserve existing visual styling */
       .mc-slot.filled.modded {
           border-top-color: #554422;
