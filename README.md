@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
 
 <img src="app/static/icons/grass_block_side.png" width="40" /><img src="app/static/icons/oak_log.png" width="40" /><img src="app/static/icons/diamond_block.png" width="40" /><img src="app/static/icons/gold_block.png" width="40" /><img src="app/static/icons/emerald_block.png" width="40" /><img src="app/static/icons/amethyst_block.png" width="40" /><img src="app/static/icons/tnt_side.png" width="40" />
 
@@ -134,6 +134,51 @@ Get it free at [adoptium.net](https://adoptium.net/).
 
 <br/>
 
+## <img src="app/static/icons/experience_bottle.png" width="28" /> How it works
+
+<div align="center">
+
+<table>
+<tr>
+<td align="center" width="25%"><img src="app/static/icons/diamond_pickaxe.png" width="48" /><br/><b>1. Pick a core</b><br/><sub>Paper, Fabric, Forge…</sub></td>
+<td align="center" width="25%"><img src="app/static/icons/redstone.png" width="48" /><br/><b>2. Tune it</b><br/><sub>RAM, CPU, render distance</sub></td>
+<td align="center" width="25%"><img src="app/static/icons/emerald.png" width="48" /><br/><b>3. Press Start</b><br/><sub>MSS downloads & launches</sub></td>
+<td align="center" width="25%"><img src="app/static/icons/nether_star.png" width="48" /><br/><b>4. Play!</b><br/><sub>Invite friends & have fun</sub></td>
+</tr>
+</table>
+
+</div>
+
+<br/>
+
+## <img src="app/static/icons/writable_book.png" width="28" /> FAQ
+
+<details>
+<summary><b>Can my friends join from other networks?</b></summary>
+<br/>
+Yes — use a VPN like Radmin VPN / Hamachi, or a tunnel like playit.gg, and share the address with friends.
+</details>
+
+<details>
+<summary><b>Where are my worlds saved?</b></summary>
+<br/>
+Everything lives in the <code>server_data/</code> folder next to the panel. Back it up anytime.
+</details>
+
+<details>
+<summary><b>I get kicked for "flying" when using mod items!</b></summary>
+<br/>
+MSS enables <code>allow-flight</code> by default, so jetpacks, rings and grappling hooks work fine.
+</details>
+
+<details>
+<summary><b>Can I switch the panel to Russian?</b></summary>
+<br/>
+Sure — hit the <b>EN / RU</b> button in the top bar.
+</details>
+
+<br/>
+
 ---
 
 <div align="center">
@@ -142,5 +187,9 @@ Get it free at [adoptium.net](https://adoptium.net/).
 
 <sub>Made with ❤️ for players who just want to play with friends.</sub><br/>
 <sub><i>Not affiliated with Mojang or Microsoft. Minecraft is a trademark of Mojang Studios.</i></sub>
+
+<br/><br/>
+
+<img src="docs/sunset.jpg" width="100%" alt="Minecraft sunset" />
 
 </div>
