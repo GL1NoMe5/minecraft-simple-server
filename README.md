@@ -1,22 +1,24 @@
 <div align="center">
 
-<img src="app/static/icons/grass_block_side.png" width="96" style="image-rendering: pixelated;" alt="Grass Block" />
-
-# MSS · Minecraft Simple Server
-
-### Your own Minecraft server. One click. Zero hassle.
-
-<sub><i>✦ Now with 100% more XP orbs! ✦</i></sub>
+<img src="app/static/icons/grass_block_side.png" width="40" /><img src="app/static/icons/oak_log.png" width="40" /><img src="app/static/icons/diamond_block.png" width="40" /><img src="app/static/icons/gold_block.png" width="40" /><img src="app/static/icons/emerald_block.png" width="40" /><img src="app/static/icons/amethyst_block.png" width="40" /><img src="app/static/icons/tnt_side.png" width="40" />
 
 <br/>
 
-![Python](https://img.shields.io/badge/Python-3.10+-5B8731?style=flat-square&logo=python&logoColor=white)
-![Minecraft](https://img.shields.io/badge/Minecraft-1.8_→_1.21+-8B5A2B?style=flat-square)
-![Platform](https://img.shields.io/badge/Windows-10_/_11-3C8DBC?style=flat-square&logo=windows&logoColor=white)
+# ⛏️ MSS · Minecraft Simple Server
+
+<a href="#"><img src="https://readme-typing-svg.demolab.com?font=Press+Start+2P&size=15&duration=2800&pause=900&color=FFFF55&center=true&vCenter=true&width=600&lines=Your+own+Minecraft+server.;One+click.+Zero+hassle.;Now+with+100%25+more+XP+orbs!;Play+with+friends+tonight!" alt="Typing tagline" /></a>
+
+![Python](https://img.shields.io/badge/Python-3.10+-5B8731?style=for-the-badge&logo=python&logoColor=white)
+![Minecraft](https://img.shields.io/badge/Minecraft-1.8_→_1.21+-8B5A2B?style=for-the-badge)
+![Platform](https://img.shields.io/badge/Windows-10_/_11-3C8DBC?style=for-the-badge&logo=windows&logoColor=white)
+
+**[✨ Features](#-features)** &nbsp;•&nbsp; **[🚀 Quick Start](#-quick-start)** &nbsp;•&nbsp; **[🗺️ Screenshots](#-screenshots)**
 
 <br/>
 
 <img src="docs/screenshots/01_overview_dashboard.png" width="100%" alt="MSS Dashboard" />
+
+<img src="app/static/icons/dirt.png" width="32" /><img src="app/static/icons/stone.png" width="32" /><img src="app/static/icons/cobblestone.png" width="32" /><img src="app/static/icons/diamond_ore.png" width="32" /><img src="app/static/icons/stone.png" width="32" /><img src="app/static/icons/oak_planks.png" width="32" /><img src="app/static/icons/bookshelf.png" width="32" /><img src="app/static/icons/bricks.png" width="32" /><img src="app/static/icons/glowstone.png" width="32" /><img src="app/static/icons/iron_block.png" width="32" /><img src="app/static/icons/dirt.png" width="32" /><img src="app/static/icons/cobblestone.png" width="32" />
 
 </div>
 
