@@ -92,7 +92,10 @@ class TestInventoryEdgeCases(unittest.TestCase):
         self.assertEqual(item["durability_pct"], 75)
 
     def test_js_build_slot_html_has_count_class(self):
+        import shutil
         import subprocess
+        if not shutil.which("node"):
+            self.skipTest("Node.js is not installed on this system")
         script = """
         const fs = require('fs');
         const code = fs.readFileSync('app/static/app_logic.js', 'utf8');
@@ -105,7 +108,7 @@ class TestInventoryEdgeCases(unittest.TestCase):
         const htmlSingle = buildSlotHtml('main_1', 10, 'Слот 10', modItemSingle);
         if (htmlSingle.includes('has-count')) process.exit(2);
         """
-        res = subprocess.run(["node", "-e", script], capture_output=True, text=True)
+        res = subprocess.run(["node", "-e", script], capture_output=True, text=True, cwd=str(BASE_DIR))
         self.assertEqual(res.returncode, 0, f"Node script failed: {res.stderr}")
 
 if __name__ == "__main__":

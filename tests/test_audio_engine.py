@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -83,6 +84,8 @@ class TestMinecraftAudioEngine(unittest.TestCase):
 
     def test_app_logic_methods_in_node(self):
         """Тест вызова методов MinecraftAudio и переключения режимов звука в окружении Node.js."""
+        if not shutil.which("node"):
+            self.skipTest("Node.js is not installed on this system")
         node_script = """
         const fs = require('fs');
         const code = fs.readFileSync('app/static/app_logic.js', 'utf8');

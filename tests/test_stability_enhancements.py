@@ -70,7 +70,7 @@ class TestStabilityEnhancements(unittest.TestCase):
 
     def test_index_html_contains_audio_and_modal(self):
         """Проверка наличия кнопки звука и модального окна в index.html."""
-        index_path = Path("app/static/index.html")
+        index_path = BASE_DIR / "app" / "static" / "index.html"
         self.assertTrue(index_path.exists())
         content = index_path.read_text(encoding="utf-8")
         self.assertIn('id="btnAudioToggle"', content)
@@ -79,7 +79,7 @@ class TestStabilityEnhancements(unittest.TestCase):
 
     def test_app_logic_contains_audio_engine_and_dom_limit(self):
         """Проверка наличия MinecraftAudio и MAX_CONSOLE_LINES в app_logic.js."""
-        js_path = Path("app/static/app_logic.js")
+        js_path = BASE_DIR / "app" / "static" / "app_logic.js"
         self.assertTrue(js_path.exists())
         content = js_path.read_text(encoding="utf-8")
         self.assertIn('const MinecraftAudio', content)
