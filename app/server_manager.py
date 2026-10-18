@@ -756,7 +756,8 @@ class ServerManager:
                 if self.process.stdin:
                     self.process.stdin.write(clean_cmd + "\n")
                     self.process.stdin.flush()
-                    if clean_cmd.lower() == "save-all":
+                    norm_cmd = clean_cmd.lstrip("/").strip().lower()
+                    if norm_cmd == "save-all" or norm_cmd.startswith("save-all "):
                         time_str = datetime.now().strftime('%H:%M:%S')
                         self.process.stdin.write(f"say §a[Server] World saved! Time: {time_str}\n")
                         self.process.stdin.flush()

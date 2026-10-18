@@ -797,7 +797,7 @@ function translateServerMessage(msg) {
   const mJavaErr = s.match(/^Java не найдена по пути '([^']+)'.*$/);
   if (mJavaErr) return `Java not found at path '${mJavaErr[1]}'. Install Java (JDK 17/21) or specify the correct path in settings.`;
 
-  const mJarErr = s.match(/^Файл ядра '([^']+)' \(или библиотеки Forge\) не найден.*$/);
+  const mJarErr = s.match(/^Файл ядра '([^']+)'(?:\s*\(или библиотеки Forge\))?\s*не найден.*$/);
   if (mJarErr) return `Server core file '${mJarErr[1]}' (or Forge libraries) not found in server_data. Download the core via manager or upload .jar manually.`;
 
   const mGm = s.match(/^Режим игрока (.+) изменен на (.+)$/);
