@@ -1,4 +1,5 @@
 import asyncio
+import logging
 import mimetypes
 import os
 import shutil
@@ -23,8 +24,50 @@ from app.config import (
 from app.server_manager import server_manager, SERVER_PRESETS
 from app.player_service import get_player_avatar, get_item_icon, is_valid_username
 
+_QUIET_ACCESS_PREFIXES = (
+    "/api/status",
+    "/api/players",
+    "/api/console/logs",
+    "/static/",
+    "/assets/",
+)
+
+
+class QuietPollingFilter(logging.Filter):
+    """Suppresses repetitive 2xx/3xx GET access logs from UI status polling and static assets."""
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        args = record.args
+        if isinstance(args, tuple) and len(args) >= 5:
+            method = str(args[1]).upper()
+            path = str(args[2])
+            try:
+                status_code = int(args[4])
+            except (ValueError, TypeError):
+                status_code = 0
+
+            if method == "GET":
+                if path.startswith("/api/items/") and status_code < 500:
+                    return False
+                if status_code < 400 and path.startswith(_QUIET_ACCESS_PREFIXES):
+                    return False
+            return True
+
+        msg = record.getMessage()
+        if '"GET /api/status ' in msg and (" 200" in msg or " 304" in msg):
+            return False
+        return True
+
+
+def install_quiet_access_log_filter() -> None:
+    access_logger = logging.getLogger("uvicorn.access")
+    if not any(isinstance(f, QuietPollingFilter) for f in access_logger.filters):
+        access_logger.addFilter(QuietPollingFilter())
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    install_quiet_access_log_filter()
     try:
         loop = asyncio.get_running_loop()
         server_manager.set_event_loop(loop)
@@ -123,23 +166,23 @@ async def start_server():
     if not server_manager.loop or not server_manager.loop.is_running():
         server_manager.set_event_loop(asyncio.get_running_loop())
     cfg = load_config()
-    res = server_manager.start_server(cfg)
+    res = await asyncio.to_thread(server_manager.start_server, cfg)
     return res
 
 @app.post("/api/server/stop")
 async def stop_server():
-    return server_manager.stop_server()
+    return await asyncio.to_thread(server_manager.stop_server)
 
 @app.post("/api/server/kill")
 async def kill_server():
-    return server_manager.kill_server()
+    return await asyncio.to_thread(server_manager.kill_server)
 
 @app.post("/api/server/restart")
 async def restart_server():
     if not server_manager.loop or not server_manager.loop.is_running():
         server_manager.set_event_loop(asyncio.get_running_loop())
     cfg = load_config()
-    return server_manager.restart_server(cfg)
+    return await asyncio.to_thread(server_manager.restart_server, cfg)
 
 @app.post("/api/server/autosave-interval")
 async def set_autosave_interval(req: AutosaveIntervalRequest):
@@ -266,6 +309,7 @@ async def upload_server_jar(file: UploadFile = File(...)):
     dest = SERVER_DIR / "server.jar"
     with open(dest, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
+    server_manager.invalidate_core_cache()
     return {"success": True, "message": "server.jar успешно загружен"}
 
 @app.delete("/api/server/core")
@@ -305,7 +349,7 @@ async def websocket_console(websocket: WebSocket):
             if data.get("type") == "command":
                 cmd = data.get("data", "")
                 if cmd:
-                    server_manager.send_command(cmd)
+                    await asyncio.to_thread(server_manager.send_command, cmd)
             elif data.get("type") == "ping":
                 await websocket.send_json({"type": "pong"})
     except WebSocketDisconnect:
@@ -405,4 +449,3 @@ def get_index():
 
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 app.mount("/assets", StaticFiles(directory=str(STATIC_DIR / "assets")), name="assets")
-

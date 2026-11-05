@@ -6,6 +6,9 @@ let isServerRunning = false;
 let cachedPresets = {};
 let wsReconnectTimeout = null;
 let pingInterval = null;
+let isPollingStatus = false;
+let lastWsActivity = 0;
+let consoleScrollRafPending = false;
 let propertiesModalInstance = null;
 let playerInspectModalInstance = null;
 let currentInspectPlayer = null;
@@ -1042,6 +1045,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   checkJavaEnvironment();
   startPolling();
 
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      pollStatusOnce();
+      if (!ws || (ws.readyState !== WebSocket.OPEN && ws.readyState !== WebSocket.CONNECTING)) {
+        initWebSocket();
+      } else if (ws.readyState === WebSocket.OPEN) {
+        try { ws.send(JSON.stringify({ type: 'ping' })); } catch (e) {}
+      }
+    }
+  });
+
   const autosaveSelect = document.getElementById('autosaveIntervalSelect');
   if (autosaveSelect) {
     autosaveSelect.addEventListener('change', (e) => onAutosaveIntervalChange(e.target.value));
@@ -1641,18 +1655,34 @@ async function killServer() {
 
 // ---------------- WEBSOCKETS LIVE CONSOLE ----------------
 function initWebSocket() {
+  clearTimeout(wsReconnectTimeout);
+  clearInterval(pingInterval);
+
   if (ws) {
-    try { ws.close(); } catch (e) {}
+    const oldWs = ws;
+    ws = null;
+    oldWs.onopen = null;
+    oldWs.onmessage = null;
+    oldWs.onclose = null;
+    oldWs.onerror = null;
+    try { oldWs.close(); } catch (e) {}
   }
 
   const loc = window.location;
   const wsProtocol = loc.protocol === 'https:' ? 'wss:' : 'ws:';
   const wsUrl = `${wsProtocol}//${loc.host}/ws/console`;
 
-  ws = new WebSocket(wsUrl);
+  const socket = new WebSocket(wsUrl);
+  ws = socket;
+  let awaitingPongSince = 0;
 
-  ws.onopen = () => {
-    document.getElementById('wsStatusDot').className = 'badge badge-center rounded-pill bg-success w-px-10 h-px-10 ms-2';
+  socket.onopen = () => {
+    if (ws !== socket) return;
+    awaitingPongSince = 0;
+    lastWsActivity = Date.now();
+
+    const dot = document.getElementById('wsStatusDot');
+    if (dot) dot.className = 'badge badge-center rounded-pill bg-success w-px-10 h-px-10 ms-2';
     const wsText = document.getElementById('wsStatusText');
     if (wsText) {
       wsText.textContent = t('ws_live');
@@ -1661,15 +1691,31 @@ function initWebSocket() {
 
     clearInterval(pingInterval);
     pingInterval = setInterval(() => {
-      if (ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({ type: 'ping' }));
+      if (ws !== socket || socket.readyState !== WebSocket.OPEN) return;
+      const now = Date.now();
+      if (awaitingPongSince > 0 && (now - awaitingPongSince) > 20000) {
+        initWebSocket();
+        return;
+      }
+      try {
+        if (awaitingPongSince === 0) awaitingPongSince = now;
+        socket.send(JSON.stringify({ type: 'ping' }));
+      } catch (e) {
+        initWebSocket();
       }
     }, 15000);
   };
 
-  ws.onmessage = (event) => {
+  socket.onmessage = (event) => {
+    if (ws !== socket) return;
+    awaitingPongSince = 0;
+    lastWsActivity = Date.now();
+
     try {
       const msg = JSON.parse(event.data);
+      if (msg.type === 'pong') {
+        return;
+      }
       if (msg.type === 'history' && Array.isArray(msg.data)) {
         appendConsoleLogsBatch(msg.data);
       } else if (msg.type === 'log') {
@@ -1691,8 +1737,10 @@ function initWebSocket() {
     }
   };
 
-  ws.onclose = () => {
-    document.getElementById('wsStatusDot').className = 'badge badge-center rounded-pill bg-danger w-px-10 h-px-10 ms-2';
+  socket.onclose = () => {
+    if (ws !== socket) return;
+    const dot = document.getElementById('wsStatusDot');
+    if (dot) dot.className = 'badge badge-center rounded-pill bg-danger w-px-10 h-px-10 ms-2';
     const wsText = document.getElementById('wsStatusText');
     if (wsText) {
       wsText.textContent = t('ws_reconnecting');
@@ -1703,12 +1751,29 @@ function initWebSocket() {
     wsReconnectTimeout = setTimeout(initWebSocket, 2000);
   };
 
-  ws.onerror = () => {
-    try { ws.close(); } catch (e) {}
+  socket.onerror = () => {
+    if (ws !== socket) return;
+    try { socket.close(); } catch (e) {}
   };
 }
 
 const MAX_CONSOLE_LINES = 1500;
+
+function scheduleConsoleScroll(container) {
+  if (!autoScroll || !container) return;
+  if (typeof requestAnimationFrame === 'function') {
+    if (consoleScrollRafPending) return;
+    consoleScrollRafPending = true;
+    requestAnimationFrame(() => {
+      consoleScrollRafPending = false;
+      if (autoScroll && container) {
+        container.scrollTop = container.scrollHeight;
+      }
+    });
+  } else {
+    container.scrollTop = container.scrollHeight;
+  }
+}
 
 function createLogElement(line) {
   const div = document.createElement('div');
@@ -1756,9 +1821,7 @@ function appendConsoleLog(line) {
     container.removeChild(container.firstChild);
   }
 
-  if (autoScroll) {
-    container.scrollTop = container.scrollHeight;
-  }
+  scheduleConsoleScroll(container);
 
   if (line.includes('joined the game') || line.includes('left the game')) {
     setTimeout(() => loadPlayers(false), 600);
@@ -1771,7 +1834,7 @@ function toggleAutoScroll() {
   if (autoScroll) {
     if (btn) btn.className = 'btn btn-sm btn-primary me-2';
     const container = document.getElementById('consoleContainer');
-    container.scrollTop = container.scrollHeight;
+    if (container) container.scrollTop = container.scrollHeight;
   } else {
     if (btn) btn.className = 'btn btn-sm btn-outline-primary me-2';
   }
@@ -1789,13 +1852,25 @@ function executeCommand() {
   MinecraftAudio.playClick();
 
   if (ws && ws.readyState === WebSocket.OPEN) {
-    ws.send(JSON.stringify({ type: 'command', data: cmd }));
+    try {
+      ws.send(JSON.stringify({ type: 'command', data: cmd }));
+    } catch (e) {
+      fetch('/api/server/command', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ command: cmd })
+      }).catch(() => {});
+      initWebSocket();
+    }
   } else {
     fetch('/api/server/command', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ command: cmd })
-    });
+    }).catch(() => {});
+    if (!ws || ws.readyState !== WebSocket.CONNECTING) {
+      initWebSocket();
+    }
   }
   input.value = '';
 }
@@ -1817,11 +1892,22 @@ function startPolling() {
 }
 
 async function pollStatusOnce() {
+  if (isPollingStatus) return;
+  isPollingStatus = true;
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), 4000) : null;
   try {
-    const res = await fetch('/api/status', { cache: 'no-store' });
+    const fetchOpts = { cache: 'no-store' };
+    if (controller) fetchOpts.signal = controller.signal;
+    const res = await fetch('/api/status', fetchOpts);
+    if (!res.ok) return;
     const st = await res.json();
     updateUIWithStatus(st);
-  } catch (e) {}
+  } catch (e) {
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
+    isPollingStatus = false;
+  }
 }
 
 function formatMemory(mb, memStr) {

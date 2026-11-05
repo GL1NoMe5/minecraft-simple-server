@@ -44,14 +44,28 @@ class ServerConfig(BaseModel):
     autosave_interval_seconds: int = Field(default=900, ge=0)
     autosave_interval_minutes: int = Field(default=15, ge=1, le=180) # Deprecated
 
+_CONFIG_CACHE: dict = {"mtime_ns": None, "size": None, "data": None}
+
 def load_config() -> ServerConfig:
     if CONFIG_FILE.exists():
         try:
+            st = CONFIG_FILE.stat()
+            if (
+                _CONFIG_CACHE["data"] is not None
+                and _CONFIG_CACHE["mtime_ns"] == st.st_mtime_ns
+                and _CONFIG_CACHE["size"] == st.st_size
+            ):
+                return ServerConfig(**_CONFIG_CACHE["data"])
+
             with open(CONFIG_FILE, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 if "autosave_interval_seconds" not in data and "autosave_interval_minutes" in data:
                     data["autosave_interval_seconds"] = int(data["autosave_interval_minutes"]) * 60
-                return ServerConfig(**data)
+                cfg = ServerConfig(**data)
+                _CONFIG_CACHE["mtime_ns"] = st.st_mtime_ns
+                _CONFIG_CACHE["size"] = st.st_size
+                _CONFIG_CACHE["data"] = cfg.model_dump()
+                return cfg
         except Exception:
             pass
     cfg = ServerConfig()
@@ -59,5 +73,13 @@ def load_config() -> ServerConfig:
     return cfg
 
 def save_config(cfg: ServerConfig) -> None:
+    dumped = cfg.model_dump()
     with open(CONFIG_FILE, "w", encoding="utf-8") as f:
-        json.dump(cfg.model_dump(), f, indent=2, ensure_ascii=False)
+        json.dump(dumped, f, indent=2, ensure_ascii=False)
+    try:
+        st = CONFIG_FILE.stat()
+        _CONFIG_CACHE["mtime_ns"] = st.st_mtime_ns
+        _CONFIG_CACHE["size"] = st.st_size
+        _CONFIG_CACHE["data"] = dumped
+    except Exception:
+        _CONFIG_CACHE["data"] = None

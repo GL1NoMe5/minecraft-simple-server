@@ -129,9 +129,19 @@ class ServerManager:
         self._silent_list_pending: int = 0
         self._entity_data_events: Dict[str, threading.Event] = {}
         self._entity_snbt_cache: Dict[str, str] = {}
+        self._forge_args_cache: Optional[Path] = None
+        self._forge_args_cache_ts: float = 0.0
+        self._forge_args_cached_valid: bool = False
+        self._forge_lib_mtime_ns: Optional[int] = None
         self._stop_metrics_event = threading.Event()
         self._metrics_thread: Optional[threading.Thread] = None
         self._start_metrics_worker()
+
+    def invalidate_core_cache(self) -> None:
+        self._forge_args_cached_valid = False
+        self._forge_args_cache = None
+        self._forge_args_cache_ts = 0.0
+        self._forge_lib_mtime_ns = None
 
     def set_event_loop(self, loop: asyncio.AbstractEventLoop):
         self.loop = loop
@@ -270,7 +280,7 @@ class ServerManager:
         payload = json.dumps({"type": "log", "data": text})
         for ws in list(self.connected_websockets):
             try:
-                await ws.send_text(payload)
+                await asyncio.wait_for(ws.send_text(payload), timeout=3.0)
             except Exception:
                 dead_sockets.add(ws)
         if dead_sockets:
@@ -356,14 +366,50 @@ class ServerManager:
             return {"valid": False, "error": str(e), "path": java_path}
 
     def find_forge_args_file(self) -> Optional[Path]:
+        now = time.time()
+        if (
+            self._forge_args_cached_valid
+            and self._forge_args_cache is not None
+            and (now - self._forge_args_cache_ts) < 10.0
+        ):
+            if self._forge_args_cache.is_file():
+                return self._forge_args_cache
+            self.invalidate_core_cache()
+
         lib_dir = SERVER_DIR / "libraries" / "net"
         if not lib_dir.exists():
+            self._forge_args_cache = None
+            self._forge_args_cache_ts = now
+            self._forge_args_cached_valid = True
+            self._forge_lib_mtime_ns = None
             return None
+
+        try:
+            lib_mtime = lib_dir.stat().st_mtime_ns
+        except OSError:
+            lib_mtime = None
+
+        if (
+            self._forge_args_cached_valid
+            and self._forge_args_cache is None
+            and (now - self._forge_args_cache_ts) < 5.0
+            and lib_mtime is not None
+            and self._forge_lib_mtime_ns == lib_mtime
+        ):
+            return None
+
         target_name = "win_args.txt" if os.name == "nt" else "unix_args.txt"
+        found: Optional[Path] = None
         for p in sorted(lib_dir.rglob(target_name), reverse=True):
             if p.is_file():
-                return p
-        return None
+                found = p
+                break
+
+        self._forge_args_cache = found
+        self._forge_args_cache_ts = now
+        self._forge_args_cached_valid = True
+        self._forge_lib_mtime_ns = lib_mtime
+        return found
 
     def get_installed_core_info(self, cfg: ServerConfig) -> Dict[str, Any]:
         jar_path = SERVER_DIR / cfg.server_jar
@@ -391,6 +437,7 @@ class ServerManager:
         }
 
     def _clean_core_files(self):
+        self.invalidate_core_cache()
         for folder_name in ("libraries", "versions", "cache"):
             d = SERVER_DIR / folder_name
             if d.exists() and d.is_dir():
@@ -502,6 +549,30 @@ class ServerManager:
                 self._stop_autosave_task()
                 return {"success": False, "message": f"Ошибка запуска процесса: {str(e)}"}
 
+    def _perform_autosave_write(self) -> Optional[str]:
+        """Thread-safe synchronous helper to send save-all and chat notice under self.lock."""
+        with self.lock:
+            proc = self.process
+            if (
+                proc is None
+                or proc.poll() is not None
+                or proc.stdin is None
+                or self.status not in ("STARTING", "RUNNING")
+            ):
+                return None
+            if proc.pid:
+                ps_proc = psutil.Process(proc.pid)
+                if not ps_proc.is_running():
+                    return None
+
+            proc.stdin.write("save-all\n")
+            proc.stdin.flush()
+            time_str = datetime.now().strftime('%H:%M:%S')
+            say_cmd = f"say §a[Server] World saved! Time: {time_str}\n"
+            proc.stdin.write(say_cmd)
+            proc.stdin.flush()
+            return time_str
+
     async def _autosave_loop(self):
         """Асинхронная фоновая задача автоматического сохранения мира."""
         try:
@@ -510,31 +581,11 @@ class ServerManager:
                     break
                 await asyncio.sleep(self.autosave_interval)
 
-                with self.lock:
-                    proc = self.process
-                    is_active = (
-                        proc is not None
-                        and proc.poll() is None
-                        and self.status in ("STARTING", "RUNNING")
-                    )
-
-                if not is_active:
-                    break
-
                 try:
-                    if proc and proc.pid:
-                        ps_proc = psutil.Process(proc.pid)
-                        if not ps_proc.is_running():
-                            break
-
-                    if proc and proc.stdin and proc.poll() is None:
-                        proc.stdin.write("save-all\n")
-                        proc.stdin.flush()
-                        time_str = datetime.now().strftime('%H:%M:%S')
-                        say_cmd = f"say §a[Server] World saved! Time: {time_str}\n"
-                        proc.stdin.write(say_cmd)
-                        proc.stdin.flush()
-                        self._sync_broadcast(f"[AutoSave] Автоматическое сохранение мира выполнено ({time_str})")
+                    time_str = await asyncio.to_thread(self._perform_autosave_write)
+                    if time_str is None:
+                        break
+                    self._sync_broadcast(f"[AutoSave] Автоматическое сохранение мира выполнено ({time_str})")
                 except (BrokenPipeError, psutil.NoSuchProcess, psutil.AccessDenied, OSError, ValueError):
                     break
                 except Exception as e:
@@ -1075,14 +1126,12 @@ class ServerManager:
 
             self.status = "STOPPING"
             self._sync_broadcast("--- [Local MC] Отправка команды 'stop' серверу... ---")
-
-        # Send stop command outside lock
-        try:
-            if self.process and self.process.stdin:
-                self.process.stdin.write("stop\n")
-                self.process.stdin.flush()
-        except Exception:
-            pass
+            try:
+                if self.process and self.process.stdin:
+                    self.process.stdin.write("stop\n")
+                    self.process.stdin.flush()
+            except Exception:
+                pass
 
         def waiter():
             start_wait = time.time()
@@ -1532,6 +1581,7 @@ class ServerManager:
                         raise ValueError(f"Ошибка установки Forge (код возврата {proc.returncode})")
 
                     # For older Forge (<=1.16.5) that generates a universal/forge jar in root, rename to server.jar
+                    self.invalidate_core_cache()
                     if self.find_forge_args_file() is None and not dest.exists():
                         for candidate in SERVER_DIR.glob("forge-*.jar"):
                             if "installer" not in candidate.name.lower():
@@ -1541,6 +1591,7 @@ class ServerManager:
                 else:
                     raise ValueError(f"Неизвестный тип ядра: {engine}")
 
+                self.invalidate_core_cache()
                 self.download_progress["status"] = "done"
                 self.download_progress["percent"] = 100
                 self.download_progress["message"] = f"Ядро {engine} {version} успешно установлено!"
@@ -1551,6 +1602,7 @@ class ServerManager:
                 self.download_progress["message"] = str(e)
                 self._sync_broadcast(f"[Local MC Ошибка загрузки]: {str(e)}")
             finally:
+                self.invalidate_core_cache()
                 self.download_progress["is_downloading"] = False
 
         threading.Thread(target=download_task, daemon=True).start()
