@@ -62,11 +62,21 @@ class TestStabilityEnhancements(unittest.TestCase):
             self.assertIn("[Test] Line 2", first_msg["data"])
 
     def test_delete_world_endpoint(self):
-        """Проверка эндпоинта DELETE /api/world."""
-        res = self.client.delete("/api/world")
-        self.assertEqual(res.status_code, 200)
-        data = res.json()
-        self.assertIn("success", data)
+        """Проверка эндпоинта DELETE /api/world в изолированной временной папке (не трогает реальный мир)."""
+        import tempfile
+        from unittest.mock import patch
+
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            dummy_world = Path(tmp_dir) / "world"
+            dummy_world.mkdir(parents=True, exist_ok=True)
+            (dummy_world / "level.dat").write_bytes(b"test")
+            with patch("app.server_manager.SERVER_DIR", Path(tmp_dir)):
+                res = self.client.delete("/api/world")
+                self.assertEqual(res.status_code, 200)
+                data = res.json()
+                self.assertIn("success", data)
+                self.assertTrue(data.get("success"))
+                self.assertFalse(dummy_world.exists())
 
     def test_index_html_contains_audio_and_modal(self):
         """Проверка наличия кнопки звука и модального окна в index.html."""
