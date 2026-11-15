@@ -233,17 +233,23 @@ def get_properties():
         props["view-distance"] = str(cfg.view_distance)
     if "allow-flight" not in props:
         props["allow-flight"] = "true" if getattr(cfg, "allow_flight", True) else "false"
+    if "enable-command-block" not in props:
+        props["enable-command-block"] = "true" if getattr(cfg, "enable_command_block", False) else "false"
     return props
 
 @app.post("/api/server/properties")
 def save_properties(props: dict):
     prop_file = SERVER_DIR / "server.properties"
+    merged_props = server_manager.read_server_properties()
+    for k, v in props.items():
+        merged_props[str(k).strip()] = str(v)
+
     with open(prop_file, "w", encoding="utf-8") as f:
         f.write("# Minecraft server properties (Managed by Local MC Server Manager)\n")
-        for k, v in sorted(props.items()):
+        for k, v in sorted(merged_props.items()):
             f.write(f"{k}={v}\n")
     
-    # Also sync view_distance & allow_flight to ServerConfig if present
+    # Sync key properties to ServerConfig so server start/restart preserves them
     try:
         cfg = load_config()
         changed = False
@@ -252,6 +258,30 @@ def save_properties(props: dict):
             changed = True
         if "allow-flight" in props:
             cfg.allow_flight = str(props["allow-flight"]).strip().lower() == "true"
+            changed = True
+        if "enable-command-block" in props:
+            cfg.enable_command_block = str(props["enable-command-block"]).strip().lower() == "true"
+            changed = True
+        if "server-port" in props:
+            cfg.server_port = int(props["server-port"])
+            changed = True
+        if "motd" in props:
+            cfg.motd = str(props["motd"])
+            changed = True
+        if "online-mode" in props:
+            cfg.online_mode = str(props["online-mode"]).strip().lower() == "true"
+            changed = True
+        if "difficulty" in props:
+            cfg.difficulty = str(props["difficulty"]).strip()
+            changed = True
+        if "gamemode" in props:
+            cfg.gamemode = str(props["gamemode"]).strip()
+            changed = True
+        if "max-players" in props:
+            cfg.max_players = int(props["max-players"])
+            changed = True
+        if "pvp" in props:
+            cfg.pvp = str(props["pvp"]).strip().lower() == "true"
             changed = True
         if changed:
             save_config(cfg)

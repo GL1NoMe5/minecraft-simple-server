@@ -325,6 +325,7 @@ class ServerManager:
         props["max-players"] = str(cfg.max_players)
         props["pvp"] = "true" if cfg.pvp else "false"
         props["allow-flight"] = "true" if getattr(cfg, "allow_flight", True) else "false"
+        props["enable-command-block"] = "true" if getattr(cfg, "enable_command_block", False) else "false"
         props["view-distance"] = str(cfg.view_distance)
 
         with open(prop_file, "w", encoding="utf-8") as f:

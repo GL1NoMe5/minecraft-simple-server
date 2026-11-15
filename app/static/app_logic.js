@@ -497,6 +497,7 @@ const I18N = {
     props_flight: 'Allow Flight (allow-flight)',
     props_flight_true: 'Allowed (True - for mods)',
     props_flight_false: 'Disallowed (False)',
+    props_cmd_blocks: 'Command Blocks (enable-command-block)',
     btn_cancel: 'Cancel',
     btn_save: 'Save',
     inspect_health: 'Health',
@@ -632,6 +633,7 @@ const I18N = {
     props_flight: 'Полёты (allow-flight)',
     props_flight_true: 'Разрешены (True - для модов)',
     props_flight_false: 'Запрещены (False)',
+    props_cmd_blocks: 'Командные блоки (enable-command-block)',
     btn_cancel: 'Отмена',
     btn_save: 'Сохранить',
     inspect_health: 'Здоровье (Health)',
@@ -2392,6 +2394,10 @@ async function openPropertiesModal() {
     document.getElementById('propMaxPlayers').value = props['max-players'] || 20;
     document.getElementById('propPvp').value = props['pvp'] || 'true';
     document.getElementById('propAllowFlight').value = props['allow-flight'] || 'true';
+    const cmdBlocksEl = document.getElementById('propCommandBlocks');
+    if (cmdBlocksEl) {
+      cmdBlocksEl.value = String(props['enable-command-block'] || 'false').toLowerCase() === 'true' ? 'true' : 'false';
+    }
     document.getElementById('propMotd').value = props['motd'] || 'A Minecraft Server';
 
     if (propertiesModalInstance) {
@@ -2408,6 +2414,8 @@ function closePropertiesModal() {
 
 async function saveProperties() {
   const viewDist = document.getElementById('propViewDistance').value;
+  const cmdBlocksEl = document.getElementById('propCommandBlocks');
+  const cmdBlocksVal = cmdBlocksEl ? cmdBlocksEl.value : 'false';
   const props = {
     'server-port': document.getElementById('propPort').value,
     'view-distance': viewDist,
@@ -2417,6 +2425,7 @@ async function saveProperties() {
     'max-players': document.getElementById('propMaxPlayers').value,
     'pvp': document.getElementById('propPvp').value,
     'allow-flight': document.getElementById('propAllowFlight').value,
+    'enable-command-block': cmdBlocksVal,
     'motd': document.getElementById('propMotd').value
   };
 
@@ -2428,6 +2437,18 @@ async function saveProperties() {
     });
     const data = await res.json();
     if (data.success) {
+      if (appConfig) {
+        appConfig.server_port = parseInt(props['server-port'], 10) || 25565;
+        appConfig.view_distance = parseInt(viewDist, 10) || 10;
+        appConfig.online_mode = props['online-mode'] === 'true';
+        appConfig.difficulty = props['difficulty'];
+        appConfig.gamemode = props['gamemode'];
+        appConfig.max_players = parseInt(props['max-players'], 10) || 20;
+        appConfig.pvp = props['pvp'] === 'true';
+        appConfig.allow_flight = props['allow-flight'] === 'true';
+        appConfig.enable_command_block = cmdBlocksVal === 'true';
+        appConfig.motd = props['motd'];
+      }
       MinecraftAudio.playAutosave();
       showToast(currentLang === 'ru' ? 'server.properties сохранен' : 'server.properties saved');
       document.getElementById('sidebarPortBadge').textContent = `:${props['server-port']}`;

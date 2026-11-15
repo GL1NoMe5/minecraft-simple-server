@@ -21,47 +21,77 @@ class TestServerFlightAndInventory(unittest.TestCase):
         cfg = load_config()
         self.assertTrue(hasattr(cfg, "allow_flight"), "ServerConfig must have allow_flight")
         self.assertTrue(cfg.allow_flight, "allow_flight should default to True")
+        self.assertTrue(hasattr(cfg, "enable_command_block"), "ServerConfig must have enable_command_block")
+        self.assertIsInstance(cfg.enable_command_block, bool)
 
     def test_allow_flight_in_server_properties_file(self):
         prop_file = SERVER_DIR / "server.properties"
         self.assertTrue(prop_file.exists(), "server.properties must exist")
         props = server_manager.read_server_properties()
         self.assertEqual(props.get("allow-flight"), "true", "allow-flight must be 'true' in server.properties")
+        self.assertIn(props.get("enable-command-block"), ("true", "false"))
 
     def test_server_manager_update_server_properties_preserves_flight(self):
         cfg = load_config()
-        cfg.allow_flight = True
-        server_manager.update_server_properties(cfg)
-        props = server_manager.read_server_properties()
-        self.assertEqual(props.get("allow-flight"), "true")
+        orig_flight = cfg.allow_flight
+        orig_cmd = cfg.enable_command_block
+        try:
+            cfg.allow_flight = True
+            cfg.enable_command_block = True
+            server_manager.update_server_properties(cfg)
+            props = server_manager.read_server_properties()
+            self.assertEqual(props.get("allow-flight"), "true")
+            self.assertEqual(props.get("enable-command-block"), "true")
 
-        # Test toggling to false and back to true
-        cfg.allow_flight = False
-        server_manager.update_server_properties(cfg)
-        props = server_manager.read_server_properties()
-        self.assertEqual(props.get("allow-flight"), "false")
-
-        cfg.allow_flight = True
-        server_manager.update_server_properties(cfg)
-        props = server_manager.read_server_properties()
-        self.assertEqual(props.get("allow-flight"), "true")
+            # Test toggling to false and back
+            cfg.allow_flight = False
+            cfg.enable_command_block = False
+            server_manager.update_server_properties(cfg)
+            props = server_manager.read_server_properties()
+            self.assertEqual(props.get("allow-flight"), "false")
+            self.assertEqual(props.get("enable-command-block"), "false")
+        finally:
+            cfg.allow_flight = orig_flight
+            cfg.enable_command_block = orig_cmd
+            server_manager.update_server_properties(cfg)
 
     def test_properties_api_get_and_post(self):
-        # GET /api/server/properties
-        res = self.client.get("/api/server/properties")
-        self.assertEqual(res.status_code, 200)
-        data = res.json()
-        self.assertIn("allow-flight", data)
-        self.assertEqual(data["allow-flight"], "true")
+        orig_cfg = load_config()
+        orig_props = server_manager.read_server_properties()
+        try:
+            # GET /api/server/properties
+            res = self.client.get("/api/server/properties")
+            self.assertEqual(res.status_code, 200)
+            data = res.json()
+            self.assertIn("allow-flight", data)
+            self.assertEqual(data["allow-flight"], "true")
+            self.assertIn("enable-command-block", data)
 
-        # POST /api/server/properties with allow-flight
-        data["allow-flight"] = "true"
-        res_post = self.client.post("/api/server/properties", json=data)
-        self.assertEqual(res_post.status_code, 200)
-        self.assertTrue(res_post.json().get("success"))
+            # POST /api/server/properties with enable-command-block=true
+            data["allow-flight"] = "true"
+            data["enable-command-block"] = "true"
+            res_post = self.client.post("/api/server/properties", json=data)
+            self.assertEqual(res_post.status_code, 200)
+            self.assertTrue(res_post.json().get("success"))
 
-        cfg = load_config()
-        self.assertTrue(cfg.allow_flight)
+            cfg = load_config()
+            self.assertTrue(cfg.allow_flight)
+            self.assertTrue(cfg.enable_command_block)
+            self.assertEqual(server_manager.read_server_properties().get("enable-command-block"), "true")
+
+            # POST /api/server/properties with enable-command-block=false
+            data["enable-command-block"] = "false"
+            res_post2 = self.client.post("/api/server/properties", json=data)
+            self.assertEqual(res_post2.status_code, 200)
+            self.assertFalse(load_config().enable_command_block)
+            self.assertEqual(server_manager.read_server_properties().get("enable-command-block"), "false")
+        finally:
+            save_config(orig_cfg)
+            prop_file = SERVER_DIR / "server.properties"
+            with open(prop_file, "w", encoding="utf-8") as f:
+                f.write("# Minecraft server properties (Managed by Local MC Server Manager)\n")
+                for k, v in sorted(orig_props.items()):
+                    f.write(f"{k}={v}\n")
 
     def test_static_inventory_assets_exist(self):
         icons_dir = BASE_DIR / "app" / "static" / "icons"
@@ -174,6 +204,7 @@ class TestServerFlightAndInventory(unittest.TestCase):
         self.assertIn('id="inspectEnderGrid"', index_html)
         self.assertIn('id="inspectSelectedSlotInfo"', index_html)
         self.assertIn('id="propAllowFlight"', index_html)
+        self.assertIn('id="propCommandBlocks"', index_html)
         self.assertIn('modal-xl', index_html)
         
         # Check CSS classes
@@ -199,6 +230,8 @@ class TestServerFlightAndInventory(unittest.TestCase):
         self.assertIn("mc-durability-bar", app_js)
         self.assertIn("mc-slot-count", app_js)
         self.assertIn("propAllowFlight", app_js)
+        self.assertIn("propCommandBlocks", app_js)
+        self.assertIn("enable-command-block", app_js)
 
 if __name__ == "__main__":
     unittest.main()

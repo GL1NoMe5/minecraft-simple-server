@@ -41,10 +41,26 @@ class ServerConfig(BaseModel):
     max_players: int = Field(default=20)
     pvp: bool = Field(default=True)
     allow_flight: bool = Field(default=True)
+    enable_command_block: bool = Field(default=False)
     autosave_interval_seconds: int = Field(default=900, ge=0)
     autosave_interval_minutes: int = Field(default=15, ge=1, le=180) # Deprecated
 
 _CONFIG_CACHE: dict = {"mtime_ns": None, "size": None, "data": None}
+
+def _read_prop_bool(key: str, default: bool = False) -> bool:
+    prop_file = SERVER_DIR / "server.properties"
+    if prop_file.exists():
+        try:
+            with open(prop_file, "r", encoding="utf-8") as f:
+                for line in f:
+                    s = line.strip()
+                    if s and not s.startswith("#") and "=" in s:
+                        k, v = s.split("=", 1)
+                        if k.strip() == key:
+                            return v.strip().lower() == "true"
+        except Exception:
+            pass
+    return default
 
 def load_config() -> ServerConfig:
     if CONFIG_FILE.exists():
@@ -61,6 +77,8 @@ def load_config() -> ServerConfig:
                 data = json.load(f)
                 if "autosave_interval_seconds" not in data and "autosave_interval_minutes" in data:
                     data["autosave_interval_seconds"] = int(data["autosave_interval_minutes"]) * 60
+                if "enable_command_block" not in data:
+                    data["enable_command_block"] = _read_prop_bool("enable-command-block", False)
                 cfg = ServerConfig(**data)
                 _CONFIG_CACHE["mtime_ns"] = st.st_mtime_ns
                 _CONFIG_CACHE["size"] = st.st_size
